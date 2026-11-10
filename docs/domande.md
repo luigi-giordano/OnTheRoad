@@ -22,3 +22,9 @@ I km totali di ogni itinerario non coincidono con la somma dei km delle tappe (e
 | Data | Versione | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | Totale |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 10/11 | solo query_db | ✅ | ✅ | ✅ | ✅ | ⏸️ | ⏸️ | 🟡 | ✅ | 5/8 + 1 parziale |
+
+| 10/11 | + RAG (22 chunk) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | 7/8 + 1 parziale |
+
+| 10/11 | + docstring cerca_documenti (moto, cilindrata) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | 7/8 + 1 parziale — nessun effetto |
+
+| 10/11 | + ISTRUZIONI: domande di consiglio su entrambe le fonti | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 8/8 |

@@ -6,6 +6,7 @@ Due fonti, due tool:
 
 Uso:  python agente.py            (chat con sessione persistente)
 """
+
 from agents import Agent, Runner, SQLiteSession, function_tool
 from dotenv import load_dotenv
 
@@ -27,6 +28,10 @@ Regole:
 - Usa solo quello che trovi nelle fonti. Se non c'è, dillo e indica dove hai cercato.
 - Quando usi un documento, cita l'[id] del passaggio.
 - Per conti su km o giorni usa SQL (SUM, COUNT…), non fare i conti a mente.
+- Per domande di consiglio (se un viaggio è adatto a una moto, a una cilindrata,
+  a un livello di esperienza, a una stagione) consulta sempre entrambe le fonti:
+  query_db per i dati dell'itinerario e cerca_documenti per i consigli.
+- Non dire che le fonti non specificano qualcosa se non le hai consultate tutte.
 """
 
 
@@ -54,7 +59,8 @@ def query_db(sql: str) -> str:
 @function_tool
 def cerca_documenti(domanda: str) -> str:
     """Cerca nei testi di OnTheRoad: FAQ, pacchetti e prezzi, rimborsi, pagamenti,
-    contatti, e guide su documenti e normative di viaggio.
+    contatti, guide su documenti e normative di viaggio, e consigli pratici
+    di chi ha fatto i viaggi (moto adatte e cilindrata, strade, difficoltà).
 
     Args:
         domanda: la domanda riscritta in forma autonoma e completa.
