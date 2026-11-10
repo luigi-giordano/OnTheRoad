@@ -16,3 +16,9 @@ Ogni modifica all'assistente si rimisura su tutta la griglia (regola anti-regres
 ## Problemi noti nei dati
 
 I km totali di ogni itinerario non coincidono con la somma dei km delle tappe (es. Norvegia: 3.100 km dichiarati, 1.140 sommando le tappe). Anche giorni e notti non tornano sempre. Va deciso quale valore è giusto prima di misurare, altrimenti l'assistente darà risposte diverse a seconda della query che scrive.
+
+## Misure
+
+| Data | Versione | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | Totale |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 10/11 | solo query_db | ✅ | ✅ | ✅ | ✅ | ⏸️ | ⏸️ | 🟡 | ✅ | 5/8 + 1 parziale |
