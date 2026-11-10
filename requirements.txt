@@ -1,4 +1,13 @@
 # Allinea le versioni a quelle del venv del corso (all-requirements.txt)
 openai-agents
+openai
 python-dotenv
+numpy
+chromadb
+# loaders di aikit (Modulo 2 · Lezione 4)
+pypdf
+python-docx
+beautifulsoup4
+markdown-it-py
+# test
 pytest
