@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OnTheRoad — itinerari in moto raccontati da chi ci è stato</title>
+  <meta name="description" content="Esplora itinerari in moto, tappe, mezzi e know-how di chi ha fatto davvero il viaggio. Iscriviti e condividi i tuoi." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- nav iniettata -->
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">Itinerari in moto</span>
+        <h1>Viaggi che hanno <strong>già funzionato.</strong></h1>
+        <p class="lead">
+          Niente blog patinati, niente percorsi finti.
+          Ogni itinerario su OnTheRoad è stato fatto davvero — con tappe,
+          chilometri, traghetti e qualche imprevisto. Iscriviti, scegli il tuo
+          prossimo viaggio o condividi il tuo.
+        </p>
+        <div class="hero-actions">
+          <a href="itinerari.html" class="btn btn-primary btn-lg">Esplora gli itinerari</a>
+          <a href="registrati.html" class="btn btn-outline btn-lg">Crea account gratis</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <img alt="Moto su una strada di montagna al tramonto"
+             src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1400&q=80" />
+        <div class="hero-stat hero-stat-1">
+          <div class="num" id="statKm">—</div>
+          <div class="label">km percorsi</div>
+        </div>
+        <div class="hero-stat hero-stat-2">
+          <div class="num" id="statCount">—</div>
+          <div class="label">itinerari</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ITINERARI IN EVIDENZA -->
+  <section class="section section-soft">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Selezione</span>
+          <h2>Itinerari in evidenza</h2>
+          <p>Tre rotte testate, tre approcci diversi al viaggio in moto.</p>
+        </div>
+        <a href="itinerari.html" class="btn btn-outline">Vedi tutti →</a>
+      </div>
+      <div class="cards" id="featuredCards"></div>
+    </div>
+  </section>
+
+  <!-- COSA OFFRIAMO -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Come funziona</span>
+          <h2>Tre modi di usare OnTheRoad</h2>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="card" style="padding:30px;">
+          <span class="badge" style="align-self:start;">01 · Esplora</span>
+          <h3 style="margin-top:18px;">Sfoglia gli itinerari</h3>
+          <p>Filtra per paese, durata e difficoltà. Ogni itinerario ha tappe, foto, mezzi usati e km/ore tra una tappa e l'altra.</p>
+          <a href="itinerari.html" class="btn btn-ghost" style="align-self:start; padding-left:0;">Apri →</a>
+        </div>
+        <div class="card" style="padding:30px;">
+          <span class="badge" style="align-self:start;">02 · Acquista</span>
+          <h3 style="margin-top:18px;">Pacchetti know-how</h3>
+          <p>Per i viaggi più complessi puoi acquistare il pacchetto completo: hotel, documenti, vaccinazioni, mezzi consigliati e i miei contatti utili.</p>
+          <a href="offerte.html" class="btn btn-ghost" style="align-self:start; padding-left:0;">Vedi offerte →</a>
+        </div>
+        <div class="card" style="padding:30px;">
+          <span class="badge" style="align-self:start;">03 · Condividi</span>
+          <h3 style="margin-top:18px;">Carica il tuo viaggio</h3>
+          <p>Iscriviti e racconta i tuoi itinerari: foto, tappe, distanze e i tuoi consigli. Aiuti chi parte dopo di te.</p>
+          <a href="registrati.html" class="btn btn-ghost" style="align-self:start; padding-left:0;">Inizia →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA finale -->
+  <section class="section section-tight">
+    <div class="container">
+      <div class="cta-split">
+        <div>
+          <h2 style="color:#fff; margin:0 0 8px;">Pronto a partire?</h2>
+          <p style="color: rgba(255,255,255,.78); margin:0;">
+            Registrati gratis: salva i tuoi itinerari preferiti e carica il tuo prossimo viaggio.
+          </p>
+        </div>
+        <div class="cta-actions" style="display:flex; gap:12px; justify-content:end; flex-wrap:wrap;">
+          <a href="registrati.html" class="btn btn-accent btn-lg">Registrati</a>
+          <a href="itinerari.html" class="btn btn-outline btn-lg" style="border-color: rgba(255,255,255,.4); color:#fff;">Esplora</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+  <script>
+    renderNav("home");
+    renderFooter();
+
+    // featured cards
+    const featured = SAMPLE_ITINERARIES.slice(0, 3);
+    document.getElementById("featuredCards").innerHTML = featured.map((it) => `
+      <a href="itinerario.html?id=${it.id}" class="card">
+        <div class="card-media">
+          <img src="${it.cover}" alt="${escapeHtml(it.title)}" />
+          <span class="card-tag">${escapeHtml(it.country)}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">${escapeHtml(it.title)}</h3>
+          <div class="card-meta">
+            <span>${ICONS.cal} ${it.duration}</span>
+            <span>${ICONS.road} ${formatKm(it.distance)}</span>
+          </div>
+          <p style="margin:0 0 12px; font-size:.92rem;">${escapeHtml(it.summary.slice(0, 110))}…</p>
+          <div class="card-foot">
+            <span class="muted" style="font-size:.85rem;">${it.stops.length} tappe</span>
+            <span class="card-price">€${it.price}<small>/pacchetto</small></span>
+          </div>
+        </div>
+      </a>
+    `).join("");
+
+    // stats
+    const all = Itineraries.all();
+    document.getElementById("statKm").textContent =
+      all.reduce((s, i) => s + (i.distance || 0), 0).toLocaleString("it-IT");
+    document.getElementById("statCount").textContent = all.length;
+  </script>
+</body>
+</html>

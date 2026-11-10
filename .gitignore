@@ -1,0 +1,21 @@
+# segreti — MAI nella repo
+.env
+.env.*
+!.env.example
+
+# ambiente Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# file generati (si ricreano con crea_db.py / indicizzazione)
+backend/dati/itinerari.db
+backend/sessioni.db
+chroma/
+backend/chroma/
+
+# editor / OS
+.vscode/
+.DS_Store
+Thumbs.db

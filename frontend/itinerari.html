@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Itinerari — OnTheRoad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <section class="page-header">
+    <div class="container">
+      <span class="eyebrow">Esplora</span>
+      <h1>Tutti gli itinerari</h1>
+      <p>Filtra per paese, durata o difficoltà. Ogni itinerario è stato fatto realmente — niente percorsi inventati.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="filters">
+        <input type="search" id="filterSearch" class="grow" placeholder="Cerca per nome, paese o tappa…" />
+        <select id="filterCountry">
+          <option value="">Tutti i paesi</option>
+        </select>
+        <select id="filterDuration">
+          <option value="">Qualsiasi durata</option>
+          <option value="1-7">1–7 giorni</option>
+          <option value="8-14">8–14 giorni</option>
+          <option value="15+">15+ giorni</option>
+        </select>
+        <select id="filterDifficulty">
+          <option value="">Qualsiasi difficoltà</option>
+          <option value="Facile">Facile</option>
+          <option value="Media">Media</option>
+          <option value="Avanzata">Avanzata</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="resetFilters">Reset</button>
+      </div>
+
+      <div class="cards" id="itinList"></div>
+      <div id="emptyState" class="empty" style="display:none; margin-top:24px;">
+        Nessun itinerario corrisponde ai filtri selezionati.
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+  <script>
+    renderNav("itinerari");
+    renderFooter();
+
+    const all = Itineraries.all();
+    const countries = [...new Set(all.map((i) => i.country))].sort();
+    const $country = document.getElementById("filterCountry");
+    countries.forEach((c) => {
+      const o = document.createElement("option");
+      o.value = c; o.textContent = c;
+      $country.appendChild(o);
+    });
+
+    const $list = document.getElementById("itinList");
+    const $empty = document.getElementById("emptyState");
+    const $search = document.getElementById("filterSearch");
+    const $duration = document.getElementById("filterDuration");
+    const $difficulty = document.getElementById("filterDifficulty");
+
+    function inDuration(days, range) {
+      if (!range) return true;
+      if (range === "1-7") return days <= 7;
+      if (range === "8-14") return days >= 8 && days <= 14;
+      if (range === "15+") return days >= 15;
+      return true;
+    }
+
+    function render() {
+      const q = $search.value.trim().toLowerCase();
+      const c = $country.value;
+      const dur = $duration.value;
+      const dif = $difficulty.value;
+
+      const filtered = all.filter((it) => {
+        if (c && it.country !== c) return false;
+        if (dif && it.difficulty !== dif) return false;
+        if (!inDuration(it.days || 0, dur)) return false;
+        if (q) {
+          const hay = (
+            it.title + " " + it.country + " " + it.summary + " " +
+            (it.stops || []).map((s) => s.name).join(" ")
+          ).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        $list.innerHTML = "";
+        $empty.style.display = "block";
+        return;
+      }
+      $empty.style.display = "none";
+
+      $list.innerHTML = filtered.map((it) => `
+        <a href="itinerario.html?id=${it.id}" class="card">
+          <div class="card-media">
+            <img src="${it.cover}" alt="${escapeHtml(it.title)}" loading="lazy" />
+            <span class="card-tag">${escapeHtml(it.country)}</span>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">${escapeHtml(it.title)}</h3>
+            <div class="card-meta">
+              <span>${ICONS.cal} ${escapeHtml(it.duration)}</span>
+              <span>${ICONS.road} ${formatKm(it.distance)}</span>
+              <span>${ICONS.pin} ${it.stops.length} tappe</span>
+            </div>
+            <p style="margin:0 0 12px; font-size:.92rem;">${escapeHtml((it.summary || "").slice(0, 110))}${(it.summary || "").length > 110 ? "…" : ""}</p>
+            <div class="card-foot">
+              <span class="badge">${escapeHtml(it.difficulty || "—")}</span>
+              <span class="card-price">€${it.price ?? 0}<small>/pacchetto</small></span>
+            </div>
+          </div>
+        </a>
+      `).join("");
+    }
+
+    [$search, $country, $duration, $difficulty].forEach((el) =>
+      el.addEventListener("input", render)
+    );
+    document.getElementById("resetFilters").addEventListener("click", () => {
+      $search.value = ""; $country.value = ""; $duration.value = ""; $difficulty.value = "";
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

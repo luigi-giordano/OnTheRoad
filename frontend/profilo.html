@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profilo — OnTheRoad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <section class="page-header">
+    <div class="container">
+      <span class="eyebrow">Area personale</span>
+      <h1 id="welcome">Profilo</h1>
+      <p>Carica un nuovo itinerario o consulta quelli che hai già pubblicato.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+
+      <!-- I miei itinerari -->
+      <div class="section-head">
+        <div>
+          <h2>I miei itinerari</h2>
+          <p>Tutti i viaggi che hai pubblicato.</p>
+        </div>
+        <button class="btn btn-accent" id="btnNew">+ Nuovo itinerario</button>
+      </div>
+      <div class="cards" id="myList"></div>
+      <div class="empty" id="myEmpty" style="display:none;">
+        Non hai ancora caricato itinerari. Premi "Nuovo itinerario" per iniziare.
+      </div>
+
+      <!-- Form nuovo itinerario -->
+      <div id="formCard" style="display:none; margin-top:48px; background:var(--surface); border:1px solid var(--line); border-radius: var(--radius-lg); padding:36px;">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Carica</span>
+            <h2 style="margin:0;">Nuovo itinerario</h2>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="btnCancel">Annulla</button>
+        </div>
+
+        <form id="itinForm" class="form-stack">
+          <div class="row-2">
+            <div class="field">
+              <label>Titolo</label>
+              <input id="f-title" required placeholder="Es: Albania Loop — coste e montagne" />
+            </div>
+            <div class="field">
+              <label>Paese</label>
+              <input id="f-country" required placeholder="Es: Albania" />
+            </div>
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label>Durata</label>
+              <input id="f-duration" required placeholder="Es: 9 giorni" />
+            </div>
+            <div class="field">
+              <label>Difficoltà</label>
+              <select id="f-difficulty">
+                <option>Facile</option>
+                <option selected>Media</option>
+                <option>Avanzata</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Stagione consigliata</label>
+              <input id="f-season" placeholder="Es: Maggio - Settembre" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Descrizione breve</label>
+            <textarea id="f-summary" rows="3" required placeholder="Due righe per raccontare il viaggio."></textarea>
+          </div>
+
+          <div class="field">
+            <label>Foto di copertina</label>
+            <div class="upload-zone" id="coverDrop">
+              <strong>Carica un'immagine</strong> o trascinala qui
+              <input type="file" id="f-cover" accept="image/*" hidden />
+            </div>
+            <img id="coverPreview" style="display:none; margin-top:12px; max-height:200px; border-radius: var(--radius-sm); object-fit:cover;" />
+          </div>
+
+          <hr class="divider" />
+          <h3 style="margin:0;">Tappe del viaggio</h3>
+          <p class="muted" style="margin:0 0 8px;">Aggiungi una tappa per ogni spostamento o sosta. Per ogni tappa puoi indicare i mezzi usati, km, ore, foto e note.</p>
+
+          <div id="stopsContainer"></div>
+          <button type="button" class="btn btn-outline" id="btnAddStop">+ Aggiungi tappa</button>
+
+          <hr class="divider" />
+          <h3 style="margin:0;">Info utili (opzionale)</h3>
+          <div class="field">
+            <label>Documenti necessari (uno per riga)</label>
+            <textarea id="f-docs" rows="3" placeholder="Es:
+Carta d'identità valida 6+ mesi
+Patente A internazionale"></textarea>
+          </div>
+          <div class="field">
+            <label>Vaccinazioni (una per riga)</label>
+            <textarea id="f-vacc" rows="2" placeholder="Es:
+Tetano (richiamo)
+Epatite A"></textarea>
+          </div>
+          <div class="field">
+            <label>Consigli pratici (uno per riga)</label>
+            <textarea id="f-tips" rows="3" placeholder="Es:
+Cambia euro nelle banche, evita gli aeroporti
+Fai sempre il pieno quando lo trovi"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-accent btn-lg btn-block">Pubblica itinerario</button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TEMPLATE TAPPA -->
+  <template id="stopTpl">
+    <div class="stop-editor">
+      <button type="button" class="remove-stop" title="Rimuovi tappa">✕</button>
+      <div class="row-2">
+        <div class="field">
+          <label>Nome tappa</label>
+          <input class="s-name" required placeholder="Es: Tirana → Berat" />
+        </div>
+        <div class="field">
+          <label>Notti</label>
+          <input class="s-nights" type="number" min="0" value="0" />
+        </div>
+      </div>
+      <div class="row-3">
+        <div class="field">
+          <label>Km</label>
+          <input class="s-km" type="number" min="0" placeholder="122" />
+        </div>
+        <div class="field">
+          <label>Ore (testo)</label>
+          <input class="s-hours" placeholder="2h 30m" />
+        </div>
+        <div class="field">
+          <label>Mezzi (separati da virgola)</label>
+          <input class="s-transport" placeholder="Moto, Traghetto, Treno" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Note</label>
+        <textarea class="s-notes" rows="2" placeholder="Cosa visitare, dove dormire, attenzioni…"></textarea>
+      </div>
+      <div class="field">
+        <label>Foto della tappa</label>
+        <div class="upload-zone s-drop">
+          <strong>Aggiungi foto</strong> (puoi caricarne più di una)
+          <input type="file" class="s-photos-input" accept="image/*" multiple hidden />
+        </div>
+        <div class="thumbs s-thumbs"></div>
+      </div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+  <script>
+    if (!requireAuth()) { /* redirect */ }
+
+    const user = Auth.current();
+    document.getElementById("welcome").textContent = "Ciao, " + user.name;
+    renderNav();
+    renderFooter();
+
+    // ----- mostra "i miei itinerari" -----
+    function renderMyList() {
+      const mine = Itineraries.userItinerariesByEmail(user.email);
+      const $list = document.getElementById("myList");
+      const $empty = document.getElementById("myEmpty");
+      if (mine.length === 0) {
+        $list.innerHTML = "";
+        $empty.style.display = "block";
+        return;
+      }
+      $empty.style.display = "none";
+      $list.innerHTML = mine.map((it) => `
+        <a href="itinerario.html?id=${it.id}" class="card">
+          <div class="card-media">
+            <img src="${it.cover}" alt="${escapeHtml(it.title)}" />
+            <span class="card-tag">${escapeHtml(it.country)}</span>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">${escapeHtml(it.title)}</h3>
+            <div class="card-meta">
+              <span>${ICONS.cal} ${escapeHtml(it.duration)}</span>
+              <span>${ICONS.pin} ${it.stops.length} tappe</span>
+            </div>
+            <p style="font-size:.9rem; margin:0;">${escapeHtml((it.summary || "").slice(0,90))}…</p>
+          </div>
+        </a>
+      `).join("");
+    }
+    renderMyList();
+
+    // ----- toggle form -----
+    const $form = document.getElementById("formCard");
+    document.getElementById("btnNew").addEventListener("click", () => {
+      $form.style.display = "block";
+      $form.scrollIntoView({ behavior: "smooth" });
+      if (document.getElementById("stopsContainer").children.length === 0) addStop();
+    });
+    document.getElementById("btnCancel").addEventListener("click", () => {
+      $form.style.display = "none";
+    });
+
+    // ----- file → dataURL helper -----
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    // ----- cover upload -----
+    const $coverDrop = document.getElementById("coverDrop");
+    const $coverInput = document.getElementById("f-cover");
+    const $coverPreview = document.getElementById("coverPreview");
+    let coverDataUrl = "";
+
+    $coverDrop.addEventListener("click", () => $coverInput.click());
+    $coverInput.addEventListener("change", async () => {
+      const f = $coverInput.files[0];
+      if (!f) return;
+      coverDataUrl = await fileToDataUrl(f);
+      $coverPreview.src = coverDataUrl;
+      $coverPreview.style.display = "block";
+    });
+
+    // ----- stops -----
+    const $stopsContainer = document.getElementById("stopsContainer");
+    const $stopTpl = document.getElementById("stopTpl");
+    document.getElementById("btnAddStop").addEventListener("click", addStop);
+
+    function addStop() {
+      const node = $stopTpl.content.firstElementChild.cloneNode(true);
+      $stopsContainer.appendChild(node);
+
+      // remove
+      node.querySelector(".remove-stop").addEventListener("click", () => node.remove());
+
+      // photos upload
+      const drop = node.querySelector(".s-drop");
+      const input = node.querySelector(".s-photos-input");
+      const thumbs = node.querySelector(".s-thumbs");
+      node._photos = [];
+
+      drop.addEventListener("click", () => input.click());
+      input.addEventListener("change", async () => {
+        for (const f of input.files) {
+          const url = await fileToDataUrl(f);
+          node._photos.push(url);
+          const im = document.createElement("img");
+          im.src = url;
+          thumbs.appendChild(im);
+        }
+        input.value = "";
+      });
+    }
+
+    // ----- submit -----
+    document.getElementById("itinForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById("f-title").value.trim();
+      const country = document.getElementById("f-country").value.trim();
+      const duration = document.getElementById("f-duration").value.trim();
+      const difficulty = document.getElementById("f-difficulty").value;
+      const season = document.getElementById("f-season").value.trim();
+      const summary = document.getElementById("f-summary").value.trim();
+
+      if (!coverDataUrl) {
+        toast("Aggiungi una foto di copertina.", "error"); return;
+      }
+
+      const stops = [];
+      let totalKm = 0;
+      let totalDays = 0;
+      $stopsContainer.querySelectorAll(".stop-editor").forEach((node) => {
+        const km = parseInt(node.querySelector(".s-km").value || "0", 10) || 0;
+        const nights = parseInt(node.querySelector(".s-nights").value || "0", 10) || 0;
+        totalKm += km;
+        totalDays += nights;
+        stops.push({
+          name: node.querySelector(".s-name").value.trim(),
+          km,
+          hours: node.querySelector(".s-hours").value.trim(),
+          nights,
+          transport: node.querySelector(".s-transport").value.split(",")
+                       .map((t) => t.trim()).filter(Boolean),
+          notes: node.querySelector(".s-notes").value.trim(),
+          photos: node._photos || [],
+        });
+      });
+
+      if (stops.length === 0) {
+        toast("Aggiungi almeno una tappa.", "error"); return;
+      }
+
+      const linesToArr = (id) =>
+        document.getElementById(id).value.split("\n").map((s) => s.trim()).filter(Boolean);
+
+      const itin = {
+        id: "u_" + Date.now(),
+        title, country, duration, difficulty, season, summary,
+        days: totalDays || stops.length,
+        distance: totalKm,
+        cover: coverDataUrl,
+        stops,
+        documents: linesToArr("f-docs"),
+        vaccinations: linesToArr("f-vacc"),
+        tips: linesToArr("f-tips"),
+        price: 0,
+        authorEmail: user.email,
+        authorName: user.name,
+        createdAt: new Date().toISOString(),
+      };
+
+      try {
+        Itineraries.saveUserItinerary(itin);
+        toast("Itinerario pubblicato!");
+        setTimeout(() => location.href = "itinerario.html?id=" + itin.id, 700);
+      } catch (err) {
+        // i dataURL delle foto possono superare la quota localStorage
+        toast("Errore: foto troppo pesanti per il browser. Riduci dimensione.", "error");
+      }
+    });
+  </script>
+</body>
+</html>

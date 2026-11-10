@@ -1,0 +1,4 @@
+# Allinea le versioni a quelle del venv del corso (all-requirements.txt)
+openai-agents
+python-dotenv
+pytest

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Itinerario — OnTheRoad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <main class="container" style="padding-top: 40px;">
+    <a href="itinerari.html" class="btn btn-ghost btn-sm" style="padding-left:0; margin-bottom:18px;">← Torna agli itinerari</a>
+    <div id="root"></div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    renderNav("itinerari");
+
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+    const it = id ? Itineraries.byId(id) : null;
+    const root = document.getElementById("root");
+
+    if (!it) {
+      root.innerHTML = `
+        <div class="empty" style="margin-top:40px;">
+          <h2 style="margin:0 0 8px;">Itinerario non trovato</h2>
+          <p>Il link potrebbe essere scaduto. <a href="itinerari.html">Torna alla lista</a>.</p>
+        </div>
+      `;
+    } else {
+      document.title = it.title + " — OnTheRoad";
+
+      const transports = [...new Set(
+        (it.stops || []).flatMap((s) => s.transport || [])
+      )];
+
+      root.innerHTML = `
+        <div class="detail-hero">
+          <img src="${it.cover}" alt="${escapeHtml(it.title)}" />
+          <div class="detail-hero-overlay">
+            <div>
+              <span class="badge" style="background:rgba(255,255,255,.16); color:#fff;">${escapeHtml(it.country)}</span>
+              <h1 style="margin-top:10px;">${escapeHtml(it.title)}</h1>
+              <div class="meta">
+                <span>${ICONS.cal} ${escapeHtml(it.duration)}</span>
+                <span>${ICONS.road} ${formatKm(it.distance)}</span>
+                <span>${ICONS.pin} ${it.stops.length} tappe</span>
+                <span>★ ${escapeHtml(it.difficulty || "—")}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div>
+            <h2>Panoramica</h2>
+            <p style="font-size:1.05rem; max-width:680px;">${escapeHtml(it.summary)}</p>
+
+            <h2 style="margin-top:48px;">Le tappe</h2>
+            <div class="timeline">
+              ${(it.stops || []).map((s, idx) => `
+                <div class="stop">
+                  <div class="stop-head">
+                    <span class="stop-num">TAPPA ${String(idx + 1).padStart(2, "0")}</span>
+                    <h3>${escapeHtml(s.name)}</h3>
+                  </div>
+                  <div class="stop-meta">
+                    ${s.km ? `<span>${ICONS.road} ${formatKm(s.km)}</span>` : ""}
+                    ${s.hours ? `<span>${ICONS.clock} ${escapeHtml(s.hours)}</span>` : ""}
+                    ${s.nights ? `<span>${ICONS.bed} ${s.nights} ${s.nights === 1 ? "notte" : "notti"}</span>` : ""}
+                  </div>
+                  ${s.notes ? `<p>${escapeHtml(s.notes)}</p>` : ""}
+                  <div>
+                    ${(s.transport || []).map((t) => `<span class="transport-pill">→ ${escapeHtml(t)}</span>`).join("")}
+                  </div>
+                  ${(s.photos && s.photos.length) ? `
+                    <div class="stop-photos">
+                      ${s.photos.map((p) => `<img src="${p}" alt="Foto ${escapeHtml(s.name)}" loading="lazy"/>`).join("")}
+                    </div>` : ""
+                  }
+                </div>
+              `).join("")}
+            </div>
+
+            ${it.tips && it.tips.length ? `
+              <h2 style="margin-top:24px;">Consigli pratici</h2>
+              <ul style="padding-left: 18px; color: var(--ink-soft);">
+                ${it.tips.map((t) => `<li style="margin-bottom:8px;">${escapeHtml(t)}</li>`).join("")}
+              </ul>` : ""
+            }
+          </div>
+
+          <aside class="detail-aside">
+            <h3>Riepilogo viaggio</h3>
+            <ul>
+              <li><span>Paese</span><span><strong>${escapeHtml(it.country)}</strong></span></li>
+              <li><span>Durata</span><span><strong>${escapeHtml(it.duration)}</strong></span></li>
+              <li><span>Distanza</span><span><strong>${formatKm(it.distance)}</strong></span></li>
+              <li><span>Difficoltà</span><span><strong>${escapeHtml(it.difficulty || "—")}</strong></span></li>
+              <li><span>Stagione</span><span><strong>${escapeHtml(it.season || "—")}</strong></span></li>
+              <li><span>Tappe</span><span><strong>${it.stops.length}</strong></span></li>
+            </ul>
+
+            ${transports.length ? `
+              <h3 style="margin-top:18px;">Mezzi usati</h3>
+              <div>${transports.map((t) => `<span class="transport-pill">${escapeHtml(t)}</span>`).join("")}</div>
+            ` : ""}
+
+            ${(it.documents && it.documents.length) ? `
+              <h3 style="margin-top:18px;">Documenti</h3>
+              <ul>${it.documents.map((d) => `<li><span>${escapeHtml(d)}</span></li>`).join("")}</ul>
+            ` : ""}
+
+            ${(it.vaccinations && it.vaccinations.length) ? `
+              <h3 style="margin-top:18px;">Vaccinazioni</h3>
+              <ul>${it.vaccinations.map((d) => `<li><span>${escapeHtml(d)}</span></li>`).join("")}</ul>
+            ` : ""}
+
+            <hr class="divider" />
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+              <div>
+                <div style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700;">€${it.price ?? 0}</div>
+                <div class="muted" style="font-size:.85rem;">pacchetto know-how completo</div>
+              </div>
+            </div>
+            <a href="offerte.html" class="btn btn-accent btn-block">Acquista il pacchetto</a>
+            <p class="muted" style="font-size:.8rem; margin: 12px 0 0;">
+              Include hotel testati, contatti utili, mezzi consigliati e file GPX.
+            </p>
+          </aside>
+        </div>
+      `;
+    }
+
+    renderFooter();
+  </script>
+</body>
+</html>

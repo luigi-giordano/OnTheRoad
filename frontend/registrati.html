@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registrati — OnTheRoad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <main class="auth-shell">
+    <div class="auth-form-wrap">
+      <div class="auth-form">
+        <a href="index.html" class="brand" style="margin-bottom: 32px;">
+          <span class="brand-dot"></span> OnTheRoad
+        </a>
+        <h1>Crea il tuo account.</h1>
+        <p class="lead">Salva itinerari, condividi i tuoi viaggi, accedi ai contenuti riservati.</p>
+
+        <form id="registerForm" class="form-stack">
+          <div class="field">
+            <label for="name">Nome</label>
+            <input id="name" required />
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" required autocomplete="email" />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" required minlength="6" autocomplete="new-password" />
+            <span class="field-hint">Almeno 6 caratteri.</span>
+          </div>
+          <button type="submit" class="btn btn-accent btn-lg btn-block">Crea account</button>
+          <p id="regError" class="field-error" style="display:none;"></p>
+        </form>
+
+        <p style="margin-top:24px;" class="muted">
+          Hai già un account? <a href="login.html" style="color:var(--accent); font-weight:600;">Accedi</a>
+        </p>
+        <p class="field-hint" style="margin-top:18px;">
+          Demo: i dati restano nel tuo browser (localStorage). Niente viene inviato online.
+        </p>
+      </div>
+    </div>
+    <div class="auth-art">
+      <div class="auth-art-inner">
+        <h2>Carica i tuoi viaggi. Ispira chi parte dopo di te.</h2>
+        <p>Foto, tappe, mezzi, tempi: tutto in un posto solo.</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    if (Auth.current()) location.href = "profilo.html";
+
+    document.getElementById("registerForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const $err = document.getElementById("regError");
+      $err.style.display = "none";
+      try {
+        Auth.register({ name, email, password });
+        toast("Account creato. Benvenuto!");
+        setTimeout(() => (location.href = "profilo.html"), 600);
+      } catch (err) {
+        $err.textContent = err.message;
+        $err.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
