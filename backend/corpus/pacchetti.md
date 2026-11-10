@@ -1,6 +1,5 @@
 # Pacchetti know-how — OnTheRoad
 
-Fonte: pagina offerte.html del sito.
 
 ## Pacchetto Essenziale
 

@@ -1,6 +1,5 @@
 # FAQ — OnTheRoad
 
-Fonte: pagina faq.html del sito.
 
 ## Cos'è OnTheRoad?
 

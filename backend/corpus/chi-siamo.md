@@ -1,6 +1,5 @@
 # Chi siamo — OnTheRoad
 
-Fonte: pagina chi-siamo.html del sito.
 
 ## Ciao, sono Mattia.
 
