@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 import documenti
 from config import CONFIG
-from strumenti import esegui_select
+from strumenti import cerca_nei_testi, esegui_select
 
 load_dotenv()
 
@@ -49,11 +49,28 @@ def query_db(sql: str) -> str:
     - documenti(itinerario_id, testo)
     - vaccinazioni(itinerario_id, testo)
     - consigli(itinerario_id, testo)
+    - per cercare un nome o un codice nei testi (strade, luoghi, mezzi come
+      traghetti) non usare LIKE qui: usa cerca_testo.
 
     Args:
         sql: una sola query SELECT.
     """
+    print(f"  [sql] {sql}")
     return esegui_select(sql)
+
+
+@function_tool
+def cerca_testo(termine: str) -> str:
+    """Cerca un nome o un codice in tutti i testi degli itinerari: riassunti,
+    note delle tappe, mezzi, consigli, documenti, vaccinazioni.
+    Da usare per strade (SH8, D81, A1), luoghi e mezzi (traghetto, barca).
+    Restituisce itinerario, campo e testo di ogni occorrenza.
+
+    Args:
+        termine: solo la parola o il codice da cercare, es. "A1" o "traghett".
+    """
+    print(f"  [testo] {termine}")
+    return cerca_nei_testi(termine)
 
 
 @function_tool
@@ -74,8 +91,8 @@ def cerca_documenti(domanda: str) -> str:
 agente = Agent(
     name="Assistente OnTheRoad",
     instructions=ISTRUZIONI,
-    tools=[query_db, cerca_documenti],
     model=CONFIG["modello"],
+    tools=[query_db, cerca_testo, cerca_documenti],
 )
 
 

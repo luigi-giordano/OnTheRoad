@@ -12,7 +12,7 @@ import sqlite3
 from config import CONFIG
 
 from crea_db import crea_db
-from strumenti import esegui_select
+from strumenti import cerca_nei_testi, esegui_select
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -81,3 +81,17 @@ def test_giorni_uguali_notti_piu_uno():
     """)
     for id_, giorni, notti in righe:
         assert giorni == notti + 1, f"{id_}: {giorni} giorni ma {notti} notti"
+
+
+def test_cerca_testo_trova_a1_in_due_campi():
+    out = cerca_nei_testi("A1")
+    assert "tappa: Zagabria" in out
+    assert "consiglio" in out
+
+
+def test_cerca_testo_traghetto_include_turchia():
+    assert "Turchia" in cerca_nei_testi("traghett")
+
+
+def test_cerca_testo_apostrofo_non_rompe_la_query():
+    assert not cerca_nei_testi("l'Atlante").startswith("Errore")
