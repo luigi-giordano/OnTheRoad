@@ -49,5 +49,5 @@ Il frontend si apre direttamente da `frontend/index.html`.
 
 - [x] Repo, struttura, dati degli itinerari in SQLite, tool `query_db`
 - [x] RAG sui documenti (`documenti.py`) e prima misura sulla griglia di domande
-- [ ] Output strutturato: un itinerario proposto dall'agente come oggetto Pydantic
+- [x] Output strutturato: un itinerario proposto dall'agente come oggetto Pydantic
 - [ ] Collegamento al frontend tramite API
