@@ -4,9 +4,9 @@ Ogni modifica all'assistente si rimisura su tutta la griglia (regola anti-regres
 
 | # | Domanda | Strada attesa | Risposta attesa |
 |---|---|---|---|
-| 1 | Quanti km è l'itinerario in Norvegia? | dati | 3.100 km |
+| 1 | Quanti km è l'itinerario in Norvegia? | dati | 1.140 km |
 | 2 | Quali itinerari sono di difficoltà Facile? | dati | Albania Loop, Corsica |
-| 3 | Ho 7 giorni o meno: cosa posso fare? | dati | Dolomiti e Stelvio (7), Corsica (6) |
+| 3 | Ho 7 giorni o meno: cosa posso fare? | dati | Dolomiti e Stelvio (7 giorni, 740 km), Corsica (7 giorni, 600 km) |
 | 4 | Che documenti servono per i Balcani? | dati | carta verde per Bosnia e Montenegro, vignetta Slovenia, … |
 | 5 | Cosa include il pacchetto Completo e quanto costa? | documenti | €89, elenco contenuti |
 | 6 | Posso avere un rimborso sul pacchetto standard? | documenti | no, ma si può sostituire con un altro itinerario |
@@ -15,7 +15,12 @@ Ogni modifica all'assistente si rimisura su tutta la griglia (regola anti-regres
 
 ## Problemi noti nei dati
 
-I km totali di ogni itinerario non coincidono con la somma dei km delle tappe (es. Norvegia: 3.100 km dichiarati, 1.140 sommando le tappe). Anche giorni e notti non tornano sempre. Va deciso quale valore è giusto prima di misurare, altrimenti l'assistente darà risposte diverse a seconda della query che scrive.
+- Km e giorni: corretti. Regola: le tappe sono la fonte di verità
+  (km_totali = somma km tappe, giorni = notti + 1). Garantito da due test in test_db.py.
+- Il frontend (SAMPLE_ITINERARIES in app.js) mostra ancora i vecchi valori:
+  si allinea in M5, quando leggerà dall'API.
+- Dolomiti e Stelvio: la tappa Stelvio → Aosta dichiara 220 km, su strada
+  sono probabilmente oltre 350. Il riassunto cita l'Austria ma nessuna tappa è lì.
 
 ## Misure
 
