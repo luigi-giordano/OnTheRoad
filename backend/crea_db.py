@@ -4,6 +4,7 @@ in un database SQLite interrogabile dall'agente con query_db.
 Uso:  python crea_db.py
 Il DB si rigenera da zero ogni volta: la fonte di verità è il JSON.
 """
+
 import json
 import sqlite3
 
@@ -19,7 +20,8 @@ CREATE TABLE itinerari (
     difficolta  TEXT NOT NULL CHECK (difficolta IN ('Facile','Media','Avanzata')),
     stagione    TEXT,            -- testo libero, es. 'Giugno – Agosto'
     prezzo_eur  INTEGER NOT NULL,
-    riassunto   TEXT
+    riassunto   TEXT,
+    cover       TEXT             -- URL dell'immagine di copertina (solo per il frontend)
 );
 CREATE TABLE tappe (
     itinerario_id TEXT NOT NULL REFERENCES itinerari(id),
@@ -36,6 +38,12 @@ CREATE TABLE mezzi_tappa (
     ordine        INTEGER NOT NULL,
     mezzo         TEXT NOT NULL       -- es. 'Moto', 'Traghetto Flåm–Gudvangen'
 );
+CREATE TABLE foto_tappa (
+    itinerario_id TEXT NOT NULL,
+    ordine        INTEGER NOT NULL,   -- ordine della tappa
+    posizione     INTEGER NOT NULL,   -- 1 = prima foto della tappa
+    url           TEXT NOT NULL
+);
 CREATE TABLE documenti   (itinerario_id TEXT NOT NULL, testo TEXT NOT NULL);
 CREATE TABLE vaccinazioni(itinerario_id TEXT NOT NULL, testo TEXT NOT NULL);
 CREATE TABLE consigli    (itinerario_id TEXT NOT NULL, testo TEXT NOT NULL);
@@ -51,23 +59,49 @@ def crea_db() -> None:
     con.executescript(SCHEMA)
     for it in itinerari:
         con.execute(
-            "INSERT INTO itinerari VALUES (?,?,?,?,?,?,?,?,?)",
-            (it["id"], it["title"], it["country"], it["days"], it["distance"],
-             it["difficulty"], it.get("season"), it.get("price", 0), it.get("summary")),
+            "INSERT INTO itinerari VALUES (?,?,?,?,?,?,?,?,?,?)",
+            (
+                it["id"],
+                it["title"],
+                it["country"],
+                it["days"],
+                it["distance"],
+                it["difficulty"],
+                it.get("season"),
+                it.get("price", 0),
+                it.get("summary"),
+                it.get("cover"),
+            ),
         )
         for n, s in enumerate(it["stops"], start=1):
             con.execute(
                 "INSERT INTO tappe VALUES (?,?,?,?,?,?,?)",
-                (it["id"], n, s["name"], s.get("km", 0), s.get("hours") or None,
-                 s.get("nights", 0), s.get("notes")),
+                (
+                    it["id"],
+                    n,
+                    s["name"],
+                    s.get("km", 0),
+                    s.get("hours") or None,
+                    s.get("nights", 0),
+                    s.get("notes"),
+                ),
             )
             con.executemany(
                 "INSERT INTO mezzi_tappa VALUES (?,?,?)",
                 [(it["id"], n, m) for m in s.get("transport", [])],
             )
-        for tabella, chiave in (("documenti", "documents"),
-                                ("vaccinazioni", "vaccinations"),
-                                ("consigli", "tips")):
+            con.executemany(
+                "INSERT INTO foto_tappa VALUES (?,?,?,?)",
+                [
+                    (it["id"], n, p, url)
+                    for p, url in enumerate(s.get("photos", []), start=1)
+                ],
+            )
+        for tabella, chiave in (
+            ("documenti", "documents"),
+            ("vaccinazioni", "vaccinations"),
+            ("consigli", "tips"),
+        ):
             con.executemany(
                 f"INSERT INTO {tabella} VALUES (?,?)",
                 [(it["id"], t) for t in it.get(chiave, [])],

@@ -7,12 +7,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pytest
 
-import sqlite3
+import sqlite3, json
 
 from config import CONFIG
 
 from crea_db import crea_db
-from strumenti import cerca_nei_testi, esegui_select
+from strumenti import carica_itinerario, cerca_nei_testi, esegui_select
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -95,3 +95,15 @@ def test_cerca_testo_traghetto_include_turchia():
 
 def test_cerca_testo_apostrofo_non_rompe_la_query():
     assert not cerca_nei_testi("l'Atlante").startswith("Errore")
+
+
+def test_carica_itinerario_uguale_al_json():
+    dati = json.loads(CONFIG["itinerari_json"].read_text(encoding="utf-8"))
+    for it in dati:
+        caricato = carica_itinerario(it["id"])
+        assert caricato is not None, it["id"]
+        assert caricato.model_dump() == it, it["id"]
+
+
+def test_carica_itinerario_id_inesistente():
+    assert carica_itinerario("marte") is None

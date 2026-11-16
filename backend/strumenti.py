@@ -10,6 +10,7 @@ Gli errori tornano come testo, così il modello può correggersi e riprovare.
 import sqlite3
 
 from config import CONFIG
+from modelli import Itinerario
 
 
 def esegui_select(sql: str) -> str:
@@ -101,3 +102,70 @@ def cerca_nei_testi(termine: str) -> str:
     if tagliato:
         testo += f"\n[Mostrate solo le prime {CONFIG['limite_righe']} righe: usa un termine più specifico.]"
     return testo
+
+
+def carica_itinerario(id_: str) -> Itinerario | None:
+    """Costruisce un Itinerario dal DB, senza LLM: dati esatti per il frontend.
+
+    Restituisce None se l'id non esiste. Se i dati nel DB sono incoerenti,
+    Pydantic solleva ValidationError (meglio un errore che un dato sbagliato).
+    """
+    uri = f"file:{CONFIG['db_path'].as_posix()}?mode=ro"
+    con = sqlite3.connect(uri, uri=True)
+    con.row_factory = sqlite3.Row
+    try:
+        it = con.execute("SELECT * FROM itinerari WHERE id = ?", (id_,)).fetchone()
+        if it is None:
+            return None
+
+        def lista(sql: str, *param) -> list[str]:
+            return [r[0] for r in con.execute(sql, (id_, *param))]
+
+        tappe = con.execute(
+            "SELECT * FROM tappe WHERE itinerario_id = ? ORDER BY ordine", (id_,)
+        ).fetchall()
+        stops = [
+            {
+                "name": t["nome"],
+                "km": t["km"],
+                "hours": t["ore_guida"] or "",
+                "nights": t["notti"],
+                "notes": t["note"] or "",
+                "transport": lista(
+                    "SELECT mezzo FROM mezzi_tappa WHERE itinerario_id = ? AND ordine = ?"
+                    " ORDER BY rowid",
+                    t["ordine"],
+                ),
+                "photos": lista(
+                    "SELECT url FROM foto_tappa WHERE itinerario_id = ? AND ordine = ?"
+                    " ORDER BY posizione",
+                    t["ordine"],
+                ),
+            }
+            for t in tappe
+        ]
+        return Itinerario(
+            id=it["id"],
+            title=it["titolo"],
+            country=it["paese"],
+            duration=f"{it['giorni']} giorni",
+            days=it["giorni"],
+            distance=it["km_totali"],
+            difficulty=it["difficolta"],
+            season=it["stagione"] or "",
+            price=it["prezzo_eur"],
+            cover=it["cover"] or "",
+            summary=it["riassunto"] or "",
+            stops=stops,
+            documents=lista(
+                "SELECT testo FROM documenti WHERE itinerario_id = ? ORDER BY rowid"
+            ),
+            vaccinations=lista(
+                "SELECT testo FROM vaccinazioni WHERE itinerario_id = ? ORDER BY rowid"
+            ),
+            tips=lista(
+                "SELECT testo FROM consigli WHERE itinerario_id = ? ORDER BY rowid"
+            ),
+        )
+    finally:
+        con.close()

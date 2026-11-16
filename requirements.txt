@@ -1,6 +1,7 @@
 # Allinea le versioni a quelle del venv del corso (all-requirements.txt)
 openai-agents
 openai
+pydantic
 python-dotenv
 numpy
 chromadb
