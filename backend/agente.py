@@ -1,8 +1,11 @@
 """Assistente di viaggio OnTheRoad — Agents SDK (M3·L10-L11).
 
-Due fonti, due tool:
+Tre tool su due fonti:
 - query_db         → dati strutturati sugli itinerari (km, giorni, tappe, documenti…)
+- cerca_testo      → nomi e codici in tutti i testi degli itinerari (UNION ALL nel codice)
 - cerca_documenti  → testi del sito e guide (FAQ, pacchetti, normative)
+
+Output strutturato: RispostaAgente (testo + id degli itinerari citati).
 
 Uso:  python agente.py            (chat con sessione persistente)
 """
@@ -12,7 +15,8 @@ from dotenv import load_dotenv
 
 import documenti
 from config import CONFIG
-from strumenti import cerca_nei_testi, esegui_select
+from modelli import RispostaAgente
+from strumenti import carica_itinerario, cerca_nei_testi, esegui_select
 
 load_dotenv()
 
@@ -32,6 +36,12 @@ Regole:
   a un livello di esperienza, a una stagione) consulta sempre entrambe le fonti:
   query_db per i dati dell'itinerario e cerca_documenti per i consigli.
 - Non dire che le fonti non specificano qualcosa se non le hai consultate tutte.
+
+Formato della risposta:
+- testo: la risposta per l'utente.
+- itinerari: gli id (colonna id della tabella itinerari, es. 'albania-loop') degli
+  itinerari di cui parli. Prendili dai risultati di query_db, non inventarli.
+  Lista vuota se la risposta non riguarda itinerari specifici.
 """
 
 
@@ -93,6 +103,7 @@ agente = Agent(
     instructions=ISTRUZIONI,
     model=CONFIG["modello"],
     tools=[query_db, cerca_testo, cerca_documenti],
+    output_type=RispostaAgente,
 )
 
 
@@ -108,7 +119,15 @@ def main() -> None:
         risultato = Runner.run_sync(
             agente, domanda, session=sessione, max_turns=CONFIG["max_turns"]
         )
-        print(f"\nAssistente: {risultato.final_output}")
+        risposta: RispostaAgente = risultato.final_output
+        print(f"\nAssistente: {risposta.testo}")
+
+        # Controllo nel codice: un id inventato dal modello non arriva al frontend.
+        validi = [i for i in risposta.itinerari if carica_itinerario(i) is not None]
+        scartati = [i for i in risposta.itinerari if i not in validi]
+        print(f"  [itinerari] {validi}")
+        if scartati:
+            print(f"  [scartati] {scartati}")
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ un Itinerario con km o giorni incoerenti non si può costruire.
 
 from typing import Literal
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 
 class Tappa(BaseModel):
@@ -50,3 +50,18 @@ class Itinerario(BaseModel):
                 f"{self.id}: duration '{self.duration}' ≠ '{self.days} giorni'"
             )
         return self
+
+
+class RispostaAgente(BaseModel):
+    """Output strutturato dell'agente: il testo per l'utente e gli id citati.
+
+    L'agente non riscrive i dati degli itinerari: restituisce solo gli id,
+    e il codice li carica dal DB con carica_itinerario (dati esatti).
+    Nessun valore di default: in strict mode il modello compila sempre tutti i campi.
+    """
+
+    testo: str = Field(description="La risposta per l'utente, in italiano.")
+    itinerari: list[str] = Field(
+        description="Gli id degli itinerari di cui parla la risposta, "
+        "es. 'albania-loop'. Lista vuota se la risposta non riguarda un itinerario."
+    )

@@ -10,7 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from config import CONFIG
-from modelli import Itinerario
+from modelli import Itinerario, RispostaAgente
 
 
 def _dati():
@@ -41,3 +41,13 @@ def test_difficolta_sconosciuta_rifiutata():
     it["difficulty"] = "Estrema"
     with pytest.raises(ValidationError):
         Itinerario.model_validate(it)
+
+
+def test_risposta_agente_senza_itinerari():
+    r = RispostaAgente(testo="Non ho dati sul Giappone.", itinerari=[])
+    assert r.itinerari == []
+
+
+def test_risposta_agente_richiede_tutti_i_campi():
+    with pytest.raises(ValidationError):
+        RispostaAgente.model_validate({"testo": "ciao"})
