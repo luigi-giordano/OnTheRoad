@@ -12,7 +12,12 @@ import sqlite3, json
 from config import CONFIG
 
 from crea_db import crea_db
-from strumenti import carica_itinerario, cerca_nei_testi, esegui_select
+from strumenti import (
+    carica_itinerario,
+    cerca_nei_testi,
+    esegui_select,
+    scheda_come_testo,
+)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -107,3 +112,18 @@ def test_carica_itinerario_uguale_al_json():
 
 def test_carica_itinerario_id_inesistente():
     assert carica_itinerario("marte") is None
+
+
+def test_scheda_contiene_i_documenti():
+    out = scheda_come_testo("corsica")
+    assert "Documenti:" in out
+    assert "Patente di guida A" in out
+    assert "Documento assicurativo moto" in out
+
+
+def test_scheda_contiene_note_delle_tappe():
+    assert "Bosforo" in scheda_come_testo("turchia-costa-egea")
+
+
+def test_scheda_id_inesistente():
+    assert scheda_come_testo("marte").startswith("Errore")

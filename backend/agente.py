@@ -1,9 +1,10 @@
 """Assistente di viaggio OnTheRoad — Agents SDK (M3·L10-L11).
 
-Tre tool su due fonti:
-- query_db         → dati strutturati sugli itinerari (km, giorni, tappe, documenti…)
-- cerca_testo      → nomi e codici in tutti i testi degli itinerari (UNION ALL nel codice)
-- cerca_documenti  → testi del sito e guide (FAQ, pacchetti, normative)
+Quattro tool su due fonti:
+- query_db           → dati strutturati sugli itinerari (km, giorni, tappe, documenti…)
+- scheda_itinerario  → tutti i dati di UN itinerario, senza SQL (costruita nel codice)
+- cerca_testo        → nomi e codici in tutti i testi degli itinerari (UNION ALL nel codice)
+- cerca_documenti    → testi del sito e guide (FAQ, pacchetti, normative)
 
 Output strutturato: RispostaAgente (testo + id degli itinerari citati).
 
@@ -16,7 +17,12 @@ from dotenv import load_dotenv
 import documenti
 from config import CONFIG
 from modelli import RispostaAgente
-from strumenti import carica_itinerario, cerca_nei_testi, esegui_select
+from strumenti import (
+    carica_itinerario,
+    cerca_nei_testi,
+    esegui_select,
+    scheda_come_testo,
+)
 
 load_dotenv()
 
@@ -24,8 +30,9 @@ ISTRUZIONI = """Sei l'assistente di viaggio di OnTheRoad, piattaforma di itinera
 Rispondi in italiano, in modo pratico e conciso.
 
 Hai due fonti:
-- query_db per i dati sugli itinerari (paesi, giorni, km, difficoltà, prezzi, tappe,
-  documenti, vaccinazioni, consigli);
+- i dati sugli itinerari (paesi, giorni, km, difficoltà, prezzi, tappe, documenti,
+  vaccinazioni, consigli): query_db per confronti e filtri tra itinerari,
+  scheda_itinerario per tutti i dati di un itinerario preciso;
 - cerca_documenti per FAQ, pacchetti, rimborsi, contatti e guide.
 
 Regole:
@@ -36,11 +43,14 @@ Regole:
   a un livello di esperienza, a una stagione) consulta sempre entrambe le fonti:
   query_db per i dati dell'itinerario e cerca_documenti per i consigli.
 - Non dire che le fonti non specificano qualcosa se non le hai consultate tutte.
+- Quando la domanda riguarda un itinerario preciso (descrizione, tappe, documenti,
+  vaccinazioni, consigli), anche se è stato nominato in un messaggio precedente,
+  usa scheda_itinerario con il suo id.
 
 Formato della risposta:
 - testo: la risposta per l'utente.
 - itinerari: gli id (colonna id della tabella itinerari, es. 'albania-loop') degli
-  itinerari di cui parli. Prendili dai risultati di query_db, non inventarli.
+  itinerari di cui parli. Prendili dai risultati dei tool, non inventarli.
   Lista vuota se la risposta non riguarda itinerari specifici.
 """
 
@@ -67,6 +77,20 @@ def query_db(sql: str) -> str:
     """
     print(f"  [sql] {sql}")
     return esegui_select(sql)
+
+
+@function_tool
+def scheda_itinerario(id_itinerario: str) -> str:
+    """Restituisce tutti i dati di UN itinerario: dati generali, tappe con km,
+    ore, notti, mezzi e note, documenti, vaccinazioni e consigli.
+    Da usare per descrivere un itinerario o rispondere su documenti, tappe e
+    consigli di un itinerario preciso. Per confronti tra itinerari usa query_db.
+
+    Args:
+        id_itinerario: l'id dell'itinerario, es. "corsica" o "albania-loop".
+    """
+    print(f"  [scheda] {id_itinerario}")
+    return scheda_come_testo(id_itinerario)
 
 
 @function_tool
@@ -102,7 +126,7 @@ agente = Agent(
     name="Assistente OnTheRoad",
     instructions=ISTRUZIONI,
     model=CONFIG["modello"],
-    tools=[query_db, cerca_testo, cerca_documenti],
+    tools=[query_db, scheda_itinerario, cerca_testo, cerca_documenti],
     output_type=RispostaAgente,
 )
 

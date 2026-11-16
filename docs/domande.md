@@ -51,17 +51,18 @@ e fare le domande nell'ordine indicato.
 
 ### Griglia 1-8
 
-| Data  | Versione                                                | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | Totale                                                                 |
-| ----- | ------------------------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | ---------------------------------------------------------------------- |
-| 10/11 | solo query_db                                           | ✅   | ✅   | ✅   | ✅   | ⏸️   | ⏸️   | 🟡   | ✅   | 5/8 + 1 parziale                                                       |
-| 10/11 | + RAG (22 chunk)                                        | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | 7/8 + 1 parziale                                                       |
-| 10/11 | + docstring cerca_documenti (moto, cilindrata)          | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | 7/8 + 1 parziale — nessun effetto                                      |
-| 10/11 | + ISTRUZIONI: domande di consiglio su entrambe le fonti | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8                                                                    |
-| 12/11 | dati corretti: km e giorni dalle tappe                  | ✅   | —   | ✅   | —   | —   | —   | —   | —   | solo 1 e 3 verificate                                                  |
-| 12/11 | + docstring query_db: campi di testo con LIKE           | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8                                                                    |
-| 12/11 | + tool cerca_testo (UNION ALL nel codice)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8                                                                    |
-| 16/11 | + output_type RispostaAgente (testo + id)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8, domanda 8 nessuna ripetizione, nessuno scartato |
-| 16/11 | + output_type RispostaAgente (testo + id)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8, nessuno scartato                                |
+| Data  | Versione                                                | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | Totale                                                                                                |
+| ----- | ------------------------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | ----------------------------------------------------------------------------------------------------- |
+| 10/11 | solo query_db                                           | ✅   | ✅   | ✅   | ✅   | ⏸️   | ⏸️   | 🟡   | ✅   | 5/8 + 1 parziale                                                                                      |
+| 10/11 | + RAG (22 chunk)                                        | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | 7/8 + 1 parziale                                                                                      |
+| 10/11 | + docstring cerca_documenti (moto, cilindrata)          | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | 7/8 + 1 parziale — nessun effetto                                                                     |
+| 10/11 | + ISTRUZIONI: domande di consiglio su entrambe le fonti | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8                                                                                                   |
+| 12/11 | dati corretti: km e giorni dalle tappe                  | ✅   | —   | ✅   | —   | —   | —   | —   | —   | solo 1 e 3 verificate                                                                                 |
+| 12/11 | + docstring query_db: campi di testo con LIKE           | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8                                                                                                   |
+| 12/11 | + tool cerca_testo (UNION ALL nel codice)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8                                                                                                   |
+| 16/11 | + output_type RispostaAgente (testo + id)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8, domanda 8 nessuna ripetizione, nessuno scartato                                |
+| 16/11 | + output_type RispostaAgente (testo + id)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8, nessuno scartato                                                               |
+| 16/11 | + tool scheda_itinerario (da carica_itinerario)         | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8; scheda usata solo sulla 4 (2 itinerari precisi), confronti sempre con query_db |
 
 Osservazioni:
 
@@ -75,8 +76,10 @@ Osservazioni:
   sta nella domanda: non si corregge con le ISTRUZIONI (rischio overfitting).
 
 - Domanda 8: 16/11 non ripetuto (dichiara correttamente dove ha cercato).
+
+- Domanda 10a: 16/11 una volta ha definito "circolare" l'itinerario Corsica (va da Bastia a Bonifacio). Piccola invenzione, da rivedere se si ripete.
   
-- Domanda 10b: 16/11 fallisce 2 volte su 4. Una volta per SQL su colonna inesistente senza nuovo tentativo, una volta senza mai leggere la tabella documenti. In entrambi i casi dice che l'informazione manca. Da correggere nel codice.
+- Domanda 10b: risolta il 16/11 con il tool scheda_itinerario (3/3). Prima falliva 2 volte su 4: SQL su colonna inesistente, oppure tabella documenti mai letta.
 
 - Conclusione: una frase nella docstring non bastava a ottenere SQL complesso
   corretto (JOIN cartesiano, righe tagliate a 50). La ricerca nei testi è
@@ -84,10 +87,12 @@ Osservazioni:
 
 ### Griglia estesa 9-16
 
-| Data  | Versione                                      | 9   | 10  | 11  | 12  | 13  | 14  | 15  | 16  | Totale                                                                                                                       |
-| ----- | --------------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 12/11 | baseline                                      | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ✅   | 7/8 + 1 parziale (13: manca la A1 in consigli)                                                                               |
-| 12/11 | + docstring query_db: campi di testo con LIKE | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ❌   | 6/8 + 1 parziale — JOIN cartesiano (96 righe, taglio a 50)                                                                   |
-| 12/11 | + tool cerca_testo (UNION ALL nel codice)     | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 13 → 3/3, 16 → 2/3                                                                                        |
-| 16/11 | + output_type RispostaAgente (testo + id)     | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | 6/8 + 1 parziale — 10b: query su colonna inesistente, nessun nuovo tentativo; 16: non usa cerca_testo, manca Turchia         |
-| 16/11 | + output_type RispostaAgente (testo + id)     | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 7/8 — ripetizioni: 10b → 2/3 (non legge la tabella documenti), 16 → 3/3 col criterio aggiornato; id validi, nessuno scartato |
+| Data  | Versione                                        | 9   | 10  | 11  | 12  | 13  | 14  | 15  | 16  | Totale                                                                                                                       |
+| ----- | ----------------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 12/11 | baseline                                        | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ✅   | 7/8 + 1 parziale (13: manca la A1 in consigli)                                                                               |
+| 12/11 | + docstring query_db: campi di testo con LIKE   | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ❌   | 6/8 + 1 parziale — JOIN cartesiano (96 righe, taglio a 50)                                                                   |
+| 12/11 | + tool cerca_testo (UNION ALL nel codice)       | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 13 → 3/3, 16 → 2/3                                                                                        |
+| 16/11 | + output_type RispostaAgente (testo + id)       | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | 6/8 + 1 parziale — 10b: query su colonna inesistente, nessun nuovo tentativo; 16: non usa cerca_testo, manca Turchia         |
+| 16/11 | + output_type RispostaAgente (testo + id)       | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 7/8 — ripetizioni: 10b → 2/3 (non legge la tabella documenti), 16 → 3/3 col criterio aggiornato; id validi, nessuno scartato |
+| 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — 10b con [scheda] corsica; 16: 4 itinerari, Turchia esclusa con motivazione esplicita                                   |
+| 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 10b → 3/3 con [scheda] corsica; 16: Turchia esclusa con motivazione esplicita                             |

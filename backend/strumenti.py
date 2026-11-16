@@ -169,3 +169,39 @@ def carica_itinerario(id_: str) -> Itinerario | None:
         )
     finally:
         con.close()
+
+
+def scheda_come_testo(id_: str) -> str:
+    """Tutti i dati di un itinerario come testo, costruiti da carica_itinerario.
+
+    Nessun SQL scritto dal modello: i dati arrivano sempre completi
+    (tappe, mezzi, documenti, vaccinazioni, consigli).
+    """
+    it = carica_itinerario(id_.strip())
+    if it is None:
+        return (
+            f"Errore: nessun itinerario con id '{id_}'. Usa query_db per trovare l'id."
+        )
+    righe = [
+        f"{it.title} (id: {it.id})",
+        f"Paese: {it.country} | {it.days} giorni | {it.distance} km | "
+        f"difficoltà {it.difficulty} | stagione {it.season} | {it.price} €",
+        f"Riassunto: {it.summary}",
+        "Tappe:",
+    ]
+    for n, t in enumerate(it.stops, start=1):
+        mezzi = ", ".join(t.transport) or "—"
+        ore = t.hours or "—"
+        righe.append(
+            f"  {n}. {t.name} — {t.km} km, {ore}, {t.nights} notti, mezzi: {mezzi}"
+        )
+        if t.notes:
+            righe.append(f"     note: {t.notes}")
+    for titolo, voci in (
+        ("Documenti", it.documents),
+        ("Vaccinazioni", it.vaccinations),
+        ("Consigli", it.tips),
+    ):
+        righe.append(f"{titolo}:")
+        righe.extend(f"  - {v}" for v in voci)
+    return "\n".join(righe)
