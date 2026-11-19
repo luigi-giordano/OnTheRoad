@@ -153,7 +153,6 @@ def carica_itinerario(id_: str) -> Itinerario | None:
             distance=it["km_totali"],
             difficulty=it["difficolta"],
             season=it["stagione"] or "",
-            price=it["prezzo_eur"],
             cover=it["cover"] or "",
             summary=it["riassunto"] or "",
             stops=stops,
@@ -185,7 +184,7 @@ def scheda_come_testo(id_: str) -> str:
     righe = [
         f"{it.title} (id: {it.id})",
         f"Paese: {it.country} | {it.days} giorni | {it.distance} km | "
-        f"difficoltà {it.difficulty} | stagione {it.season} | {it.price} €",
+        f"difficoltà {it.difficulty} | stagione {it.season}",
         f"Riassunto: {it.summary}",
         "Tappe:",
     ]
@@ -209,8 +208,8 @@ def scheda_come_testo(id_: str) -> str:
 
 # --- Richieste di pacchetti (M4) ---------------------------------------------
 # Prezzi dei pacchetti know-how, come nel modulo della pagina Offerte.
-# Decisione del 19/11: la richiesta costa il prezzo del pacchetto;
-# il price dell'itinerario è un valore da chiarire (Problemi noti).
+# Decisione del 19/11: si vendono solo pacchetti a prezzo fisso, uguale per
+# tutti gli itinerari; il vecchio price dell'itinerario è stato tolto.
 PREZZI_PACCHETTI = {"Essenziale": 39, "Completo": 89, "Su misura": 249}
 
 SQL_CREA_RICHIESTE = """

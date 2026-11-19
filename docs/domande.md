@@ -2,16 +2,16 @@
 
 Ogni modifica all'assistente si rimisura su tutta la griglia (regola anti-regressione).
 
-| #   | Domanda                                            | Strada attesa    | Risposta attesa                                                   |
-| --- | -------------------------------------------------- | ---------------- | ----------------------------------------------------------------- |
-| 1   | Quanti km è l'itinerario in Norvegia?              | dati             | 1.140 km                                                          |
-| 2   | Quali itinerari sono di difficoltà Facile?         | dati             | Albania Loop, Corsica                                             |
-| 3   | Ho 7 giorni o meno: cosa posso fare?               | dati             | Dolomiti e Stelvio (7 giorni, 740 km), Corsica (7 giorni, 600 km) |
-| 4   | Che documenti servono per i Balcani?               | dati             | carta verde per Bosnia e Montenegro, vignetta Slovenia, …         |
-| 5   | Cosa include il pacchetto Completo e quanto costa? | documenti        | €89, elenco contenuti                                             |
-| 6   | Posso avere un rimborso sul pacchetto standard?    | documenti        | no, ma si può sostituire con un altro itinerario                  |
-| 7   | Con una 300cc posso fare l'Albania?                | documenti + dati | sì (FAQ), difficoltà Facile                                       |
-| 8   | Quanto costa la benzina in Giappone?               | nessuna          | rifiuto: non è nelle fonti                                        |
+| #   | Domanda                                            | Strada attesa    | Risposta attesa                                           |
+| --- | -------------------------------------------------- | ---------------- | --------------------------------------------------------- |
+| 1   | Quanti km è l'itinerario in Norvegia?              | dati             | 1.140 km                                                  |
+| 2   | Quali itinerari sono di difficoltà Facile?         | dati             | Albania Loop, Corsica                                     |
+| 3   | Ho 7 giorni o meno: cosa posso fare?               | dati             | Corsica (7 giorni, 600 km)                                |
+| 4   | Che documenti servono per i Balcani?               | dati             | carta verde per Bosnia e Montenegro, vignetta Slovenia, … |
+| 5   | Cosa include il pacchetto Completo e quanto costa? | documenti        | €89, elenco contenuti                                     |
+| 6   | Posso avere un rimborso sul pacchetto standard?    | documenti        | no, ma si può sostituire con un altro itinerario          |
+| 7   | Con una 300cc posso fare l'Albania?                | documenti + dati | sì (FAQ), difficoltà Facile                               |
+| 8   | Quanto costa la benzina in Giappone?               | nessuna          | rifiuto: non è nelle fonti                                |
 
 ## Griglia estesa (domande 9-16)
 
@@ -22,9 +22,9 @@ e fare le domande nell'ordine indicato.
 
 | #   | Domanda                                      | Risposta attesa                                                       | Cosa misura                               |
 | --- | -------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------- |
-| 9a  | Quali itinerari sono di difficoltà Avanzata? | Norvegia (11 gg, 1.140 km, 109 €) e Turchia (11 gg, 1.590 km, 99 €)   | —                                         |
-| 9b  | E quale dei due costa meno?                  | Turchia, 99 €                                                         | risolve "dei due" dalla sessione          |
-| 10a | Parlami dell'itinerario in Corsica           | 7 gg, 600 km, Facile, 49 €, Maggio – Ottobre                          | —                                         |
+| 9a  | Quali itinerari sono di difficoltà Avanzata? | Norvegia (11 gg, 1.140 km) e Turchia (11 gg, 1.590 km)                | —                                         |
+| 9b  | E quale dei due è più lungo?                 | Turchia, 1.590 km                                                     | risolve "dei due" dalla sessione          |
+| 10a | Parlami dell'itinerario in Corsica           | 7 gg, 600 km, Facile, Maggio – Ottobre                                | —                                         |
 | 10b | Che documenti servono?                       | Carta d'identità o passaporto, patente A, documento assicurativo moto | capisce che si parla ancora della Corsica |
 
 ### Nuova griglia domande Codici esatti (11-13) e confronti (14-16)
@@ -68,24 +68,28 @@ Misurare due volte, con `CONFIG["critico"] = False` e `True`, sessione nuova ogn
 | #   | Domanda                                                                           | Risposta attesa                                                    | Trappola                            |
 | --- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------- |
 | 24  | Quanto spendo in tutto per il Completo della Corsica e l'Essenziale dell'Albania? | €128 (89 + 39)                                                     | calcolo: il critico deve approvarlo |
-| 25  | Quanto costa il pacchetto Su misura per i Balcani?                                | €249 (non 119, che è il price dell'itinerario)                     | confondere i due prezzi             |
+| 25  | Quanto costa il pacchetto Su misura per i Balcani?                                | €249 (prezzo fisso, uguale per tutti gli itinerari)                | confondere i due prezzi             |
 | 26  | Quanti km al giorno in media si fanno in Norvegia?                                | circa 104 km (1.140 / 11)                                          | calcolo a mente                     |
 | 27  | Quanto costa il traghetto per la Corsica?                                         | prezzo non nelle fonti; può dire durate (Livorno 5-6h, Genova 10h) | inventare un prezzo                 |
 | 28  | Quanti km e quante ore di guida ha la tappa più lunga dei Balcani?                | Zagabria (rientro): 410 km, 5h 30m                                 | —                                   |
 
 ## Problemi noti nei dati
 
-- Km e giorni: corretti. Regola: le tappe sono la fonte di verità
-  (km_totali = somma km tappe, giorni = notti + 1). Garantito da due test in test_db.py.
-- Il frontend (SAMPLE_ITINERARIES in app.js) mostra ancora i vecchi valori:
-  si allinea in M5, quando leggerà dall'API.
-- Dolomiti e Stelvio: la tappa Stelvio → Aosta dichiara 220 km, su strada
-  sono probabilmente oltre 350. Il riassunto cita l'Austria ma nessuna tappa è lì.
-- Prezzi: ogni itinerario ha un suo `price` (Corsica 49 €, Norvegia 109 €…), mentre
-  i pacchetti know-how hanno prezzi fissi (Essenziale 39 €, Completo 89 €, Su misura 249 €).
-  Decisione del 19/11: una richiesta costa il prezzo del pacchetto, come mostra il
-  modulo della pagina Offerte (PREZZI_PACCHETTI in strumenti.py). Il significato di
-  `price` dell'itinerario è da chiarire.
+Risolti il 19/11:
+
+- Km e giorni: le tappe sono la fonte di verità (km_totali = somma km tappe,
+  giorni = notti + 1). Garantito dal validator di Itinerario e da due test in test_db.py.
+- Frontend allineato: SAMPLE_ITINERARIES in app.js è identico a itinerari.json.
+- Prezzi: tolto il price dell'itinerario. Si vendono solo pacchetti a prezzo fisso
+  (Essenziale 39 €, Completo 89 €, Su misura 249 €), uguali per tutti gli itinerari.
+- Dolomiti: la tappa Stelvio → Aosta (220 km) è stata divisa in Lago di Como — Varenna
+  (150 km) e Aosta (230 km): 900 km in 8 giorni. Km e ore delle due tappe sono stime.
+- Dolomiti: paese "Italia" (prima "Italia / Austria", senza tappe in Austria).
+
+Aperti:
+
+- Il frontend salva account e password in chiaro in localStorage (solo demo, segnalato
+  nelle pagine di login e registrazione). Si risolve in M5 con il login sul backend.
 
 ## Misure
 
@@ -104,6 +108,7 @@ Misurare due volte, con `CONFIG["critico"] = False` e `True`, sessione nuova ogn
 | 16/11 | + output_type RispostaAgente (testo + id)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8, nessuno scartato                                                               |
 | 16/11 | + tool scheda_itinerario (da carica_itinerario)         | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8; scheda usata solo sulla 4 (2 itinerari precisi), confronti sempre con query_db |
 | 19/11 | + critico dei numeri (acceso)                           | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — critico: numeri tutti nelle fonti 8/8, livello 2 mai chiamato                                   |
+| 19/11 | dati coerenti (prezzo itinerari tolto, Dolomiti 8 gg)   | —   | —   | ✅   | —   | —   | —   | —   | —   | 3 rimisurata: solo Corsica (Dolomiti ora 8 giorni)                                                    |
 
 Osservazioni:
 
@@ -128,17 +133,18 @@ Osservazioni:
 
 ### Griglia estesa 9-16
 
-| Data  | Versione                                        | 9   | 10  | 11  | 12  | 13  | 14  | 15  | 16  | Totale                                                                                                                                                |
-| ----- | ----------------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 12/11 | baseline                                        | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ✅   | 7/8 + 1 parziale (13: manca la A1 in consigli)                                                                                                        |
-| 12/11 | + docstring query_db: campi di testo con LIKE   | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ❌   | 6/8 + 1 parziale — JOIN cartesiano (96 righe, taglio a 50)                                                                                            |
-| 12/11 | + tool cerca_testo (UNION ALL nel codice)       | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 13 → 3/3, 16 → 2/3                                                                                                                 |
-| 16/11 | + output_type RispostaAgente (testo + id)       | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | 6/8 + 1 parziale — 10b: query su colonna inesistente, nessun nuovo tentativo; 16: non usa cerca_testo, manca Turchia                                  |
-| 16/11 | + output_type RispostaAgente (testo + id)       | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 7/8 — ripetizioni: 10b → 2/3 (non legge la tabella documenti), 16 → 3/3 col criterio aggiornato; id validi, nessuno scartato                          |
-| 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — 10b con [scheda] corsica; 16: 4 itinerari, Turchia esclusa con motivazione esplicita                                                            |
-| 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 10b → 3/3 con [scheda] corsica; 16: Turchia esclusa con motivazione esplicita                                                      |
-| 19/11 | + tool registra_richiesta (sotto approvazione)  | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — registra_richiesta mai chiamato; 9b Turchia 99 € (prezzo itinerario, non pacchetto); 11 senza la tappa Himarë; 16 Turchia inclusa (accettabile) |
-| 19/11 | + critico dei numeri (acceso)                   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — critico: livello 2 mai chiamato, nessun falso allarme; 11 e 12 senza la tappa (si ripete)                                                       |
+| Data  | Versione                                              | 9   | 10  | 11  | 12  | 13  | 14  | 15  | 16  | Totale                                                                                                                                                |
+| ----- | ----------------------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 12/11 | baseline                                              | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ✅   | 7/8 + 1 parziale (13: manca la A1 in consigli)                                                                                                        |
+| 12/11 | + docstring query_db: campi di testo con LIKE         | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ❌   | 6/8 + 1 parziale — JOIN cartesiano (96 righe, taglio a 50)                                                                                            |
+| 12/11 | + tool cerca_testo (UNION ALL nel codice)             | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 13 → 3/3, 16 → 2/3                                                                                                                 |
+| 16/11 | + output_type RispostaAgente (testo + id)             | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | 6/8 + 1 parziale — 10b: query su colonna inesistente, nessun nuovo tentativo; 16: non usa cerca_testo, manca Turchia                                  |
+| 16/11 | + output_type RispostaAgente (testo + id)             | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 7/8 — ripetizioni: 10b → 2/3 (non legge la tabella documenti), 16 → 3/3 col criterio aggiornato; id validi, nessuno scartato                          |
+| 16/11 | + tool scheda_itinerario (da carica_itinerario)       | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — 10b con [scheda] corsica; 16: 4 itinerari, Turchia esclusa con motivazione esplicita                                                            |
+| 16/11 | + tool scheda_itinerario (da carica_itinerario)       | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 10b → 3/3 con [scheda] corsica; 16: Turchia esclusa con motivazione esplicita                                                      |
+| 19/11 | + tool registra_richiesta (sotto approvazione)        | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — registra_richiesta mai chiamato; 9b Turchia 99 € (prezzo itinerario, non pacchetto); 11 senza la tappa Himarë; 16 Turchia inclusa (accettabile) |
+| 19/11 | + critico dei numeri (acceso)                         | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — critico: livello 2 mai chiamato, nessun falso allarme; 11 e 12 senza la tappa (si ripete)                                                       |
+| 19/11 | dati coerenti (prezzo itinerari tolto, Dolomiti 8 gg) | ✅   | ✅   | —   | —   | —   | —   | —   | —   | 9a, 9b (nuova: "più lungo") e 10a rimisurate: nessun prezzo di itinerario; 25 €249 ✅                                                                  |
 
 ### Griglia richieste 17-20
 

@@ -239,6 +239,8 @@ p  { margin: 0 0 1em 0; color: var(--ink-soft); }
   padding: 16px 20px;
   box-shadow: var(--shadow);
   font-family: var(--font-display);
+  min-width: 140px;   /* i due badge hanno la stessa larghezza */
+  text-align: center; /* numero ed etichetta centrati nel badge */
 }
 .hero-stat .num {
   font-size: 1.8rem; font-weight: 700; line-height: 1; color: var(--ink);
@@ -250,11 +252,13 @@ p  { margin: 0 0 1em 0; color: var(--ink-soft); }
   letter-spacing: .1em;
   margin-top: 4px;
 }
-.hero-stat-1 { top: 24px; right: -20px; }
-.hero-stat-2 { bottom: 32px; left: -24px; }
+/* Dentro la foto: .hero-visual ha overflow: hidden, quindi offset negativi
+   (right: -20px, left: -24px) tagliavano i badge sul bordo. */
+.hero-stat-1 { top: 24px; right: 24px; }
+.hero-stat-2 { bottom: 24px; left: 24px; }
 @media (max-width: 880px) {
-  .hero-stat-1 { right: 12px; }
-  .hero-stat-2 { left: 12px; }
+  .hero-stat-1 { top: 16px; right: 16px; }
+  .hero-stat-2 { bottom: 16px; left: 16px; }
 }
 
 /* =========================================================

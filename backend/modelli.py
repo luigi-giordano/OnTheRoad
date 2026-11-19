@@ -30,7 +30,6 @@ class Itinerario(BaseModel):
     distance: int
     difficulty: Literal["Facile", "Media", "Avanzata"]
     season: str
-    price: int
     cover: str
     summary: str
     stops: list[Tappa]

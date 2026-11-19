@@ -19,7 +19,6 @@ CREATE TABLE itinerari (
     km_totali   INTEGER NOT NULL,
     difficolta  TEXT NOT NULL CHECK (difficolta IN ('Facile','Media','Avanzata')),
     stagione    TEXT,            -- testo libero, es. 'Giugno – Agosto'
-    prezzo_eur  INTEGER NOT NULL,
     riassunto   TEXT,
     cover       TEXT             -- URL dell'immagine di copertina (solo per il frontend)
 );
@@ -59,7 +58,7 @@ def crea_db() -> None:
     con.executescript(SCHEMA)
     for it in itinerari:
         con.execute(
-            "INSERT INTO itinerari VALUES (?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO itinerari VALUES (?,?,?,?,?,?,?,?,?)",
             (
                 it["id"],
                 it["title"],
@@ -68,7 +67,6 @@ def crea_db() -> None:
                 it["distance"],
                 it["difficulty"],
                 it.get("season"),
-                it.get("price", 0),
                 it.get("summary"),
                 it.get("cover"),
             ),

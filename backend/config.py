@@ -1,5 +1,4 @@
 """CONFIG unico del progetto (come da M3·L2): tutti i parametri in un posto solo."""
-
 from pathlib import Path
 
 BASE = Path(__file__).parent

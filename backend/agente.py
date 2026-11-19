@@ -47,7 +47,7 @@ ISTRUZIONI = """Sei l'assistente di viaggio di OnTheRoad, piattaforma di itinera
 Rispondi in italiano, in modo pratico e conciso.
 
 Hai due fonti:
-- i dati sugli itinerari (paesi, giorni, km, difficoltà, prezzi, tappe, documenti,
+- i dati sugli itinerari (paesi, giorni, km, difficoltà, stagione, tappe, documenti,
   vaccinazioni, consigli): query_db per confronti e filtri tra itinerari,
   scheda_itinerario per tutti i dati di un itinerario preciso;
 - cerca_documenti per FAQ, pacchetti, rimborsi, contatti e guide.
@@ -56,6 +56,8 @@ Regole:
 - Usa solo quello che trovi nelle fonti. Se non c'è, dillo e indica dove hai cercato.
 - Quando usi un documento, cita l'[id] del passaggio.
 - Per conti su km o giorni usa SQL (SUM, COUNT…), non fare i conti a mente.
+- I prezzi sono quelli dei pacchetti know-how (Essenziale, Completo, Su misura),
+  uguali per tutti gli itinerari: cercali con cerca_documenti.
 - Per domande di consiglio (se un viaggio è adatto a una moto, a una cilindrata,
   a un livello di esperienza, a una stagione) consulta sempre entrambe le fonti:
   query_db per i dati dell'itinerario e cerca_documenti per i consigli.
@@ -92,9 +94,9 @@ def query_db(sql: str) -> str:
     """Esegue una query SELECT in sola lettura sul database degli itinerari (SQLite).
 
     Tabelle:
-    - itinerari(id, titolo, paese, giorni, km_totali, difficolta, stagione, prezzo_eur, riassunto)
+    - itinerari(id, titolo, paese, giorni, km_totali, difficolta, stagione, riassunto)
       difficolta è uno tra 'Facile', 'Media', 'Avanzata'.
-      paese può contenere più paesi separati da ' / ': usa LIKE '%Austria%'.
+      paese può contenere più paesi separati da ' / ': usa LIKE '%Montenegro%'.
     - tappe(itinerario_id, ordine, nome, km, ore_guida, notti, note)
       km = distanza dalla tappa precedente; ordine 1 = partenza.
     - mezzi_tappa(itinerario_id, ordine, mezzo)

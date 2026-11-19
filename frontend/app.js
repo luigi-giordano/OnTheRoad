@@ -65,18 +65,21 @@ const ICONS = {
    SAMPLE ITINERARIES
 ───────────────────────────────────────────────────────── */
 
+/* Prezzo del pacchetto più economico (Essenziale), come in offerte.html.
+   I pacchetti hanno prezzi fissi, uguali per tutti gli itinerari. */
+const PREZZO_MINIMO_PACCHETTO = 39;
+
 const SAMPLE_ITINERARIES = [
   /* ── 1. NORVEGIA ─────────────────────────────────── */
   {
     id: "norvegia-fiordi",
     title: "Norvegia — La Rotta dei Fiordi",
     country: "Norvegia",
-    duration: "12 giorni",
-    days: 12,
-    distance: 3100,
+    duration: "11 giorni",
+    days: 11,
+    distance: 1140,
     difficulty: "Avanzata",
     season: "Giugno – Agosto",
-    price: 109,
     cover:
       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80",
     summary:
@@ -184,12 +187,11 @@ const SAMPLE_ITINERARIES = [
     id: "marocco-atlante-sahara",
     title: "Marocco — Atlante, Dunes e Medine",
     country: "Marocco",
-    duration: "10 giorni",
-    days: 10,
-    distance: 2200,
+    duration: "11 giorni",
+    days: 11,
+    distance: 1490,
     difficulty: "Media",
     season: "Marzo – Maggio, Settembre – Ottobre",
-    price: 89,
     cover:
       "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=900&q=80",
     summary:
@@ -302,10 +304,9 @@ const SAMPLE_ITINERARIES = [
     country: "Albania",
     duration: "9 giorni",
     days: 9,
-    distance: 1900,
+    distance: 780,
     difficulty: "Facile",
     season: "Maggio – Settembre",
-    price: 59,
     cover:
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
     summary:
@@ -404,17 +405,16 @@ const SAMPLE_ITINERARIES = [
   {
     id: "dolomiti-tirolo",
     title: "Dolomiti e Stelvio",
-    country: "Italia / Austria",
-    duration: "7 giorni",
-    days: 7,
-    distance: 1250,
+    country: "Italia",
+    duration: "8 giorni",
+    days: 8,
+    distance: 900,
     difficulty: "Media",
     season: "Giugno – Settembre",
-    price: 69,
     cover:
       "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=900&q=80",
     summary:
-      "Sette giorni di passi alpini tra i più belli d'Europa: Pordoi, Gardena, Stelvio e il Gran Paradiso. Tornanti, neve (anche in luglio sopra i 2500 m) e rifugi dove il capriolo è sempre in menù.",
+      "Otto giorni di passi alpini tra i più belli d'Europa: Pordoi, Gardena, Stelvio e il Gran Paradiso. Tornanti, neve (anche in luglio sopra i 2500 m) e rifugi dove il capriolo è sempre in menù.",
     stops: [
       {
         name: "Bolzano",
@@ -464,9 +464,19 @@ const SAMPLE_ITINERARIES = [
         ],
       },
       {
-        name: "Aosta e Valle del Gran Paradiso",
-        km: 220,
+        name: "Lago di Como — Varenna",
+        km: 150,
         hours: "3h 30m",
+        nights: 1,
+        transport: ["Moto"],
+        notes:
+          "Discesa dallo Stelvio verso Bormio e la Valtellina, poi la sponda orientale del Lario. Varenna spezza il trasferimento verso Aosta: passeggiata sul lungolago e cena vista lago.",
+        photos: [],
+      },
+      {
+        name: "Aosta e Valle del Gran Paradiso",
+        km: 230,
+        hours: "3h 15m",
         nights: 2,
         transport: ["Moto"],
         notes:
@@ -495,12 +505,11 @@ const SAMPLE_ITINERARIES = [
     id: "balcani-occidentali",
     title: "Balcani Occidentali — Plitvice, Kotor, Sarajevo",
     country: "Slovenia / Croazia / Bosnia / Montenegro",
-    duration: "14 giorni",
-    days: 14,
-    distance: 3200,
+    duration: "12 giorni",
+    days: 12,
+    distance: 1870,
     difficulty: "Media",
     season: "Maggio – Settembre",
-    price: 119,
     cover:
       "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=900&q=80",
     summary:
@@ -621,12 +630,11 @@ const SAMPLE_ITINERARIES = [
     id: "corsica",
     title: "Corsica — L'Isola Selvaggia",
     country: "Francia (Corsica)",
-    duration: "6 giorni",
-    days: 6,
-    distance: 920,
+    duration: "7 giorni",
+    days: 7,
+    distance: 600,
     difficulty: "Facile",
     season: "Maggio – Ottobre",
-    price: 49,
     cover:
       "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=900&q=80",
     summary:
@@ -723,10 +731,9 @@ const SAMPLE_ITINERARIES = [
     country: "Turchia",
     duration: "11 giorni",
     days: 11,
-    distance: 2500,
+    distance: 1590,
     difficulty: "Avanzata",
     season: "Aprile – Giugno, Settembre – Ottobre",
-    price: 99,
     cover:
       "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=900&q=80",
     summary:
@@ -867,6 +874,8 @@ const Itineraries = (() => {
    AUTH MODULE
 ───────────────────────────────────────────────────────── */
 
+/* DEMO: account e password stanno in localStorage, non cifrati.
+   Il login vero (con il backend) arriva in M5. */
 const Auth = (() => {
   const USERS_KEY = "otr_users";
   const SESSION_KEY = "otr_session";

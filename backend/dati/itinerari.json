@@ -8,7 +8,6 @@
     "distance": 1140,
     "difficulty": "Avanzata",
     "season": "Giugno – Agosto",
-    "price": 109,
     "cover": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=900&q=80",
     "summary": "Da Bergen al Trollstigen passando per i fiordi più selvaggi della Norvegia: Hardangerfjord, Nærøyfjord e Geirangerfjord. Strade tortuose, traghetti obbligatori e panorami che fanno dimenticare le salite.",
     "stops": [
@@ -129,7 +128,6 @@
     "distance": 1490,
     "difficulty": "Media",
     "season": "Marzo – Maggio, Settembre – Ottobre",
-    "price": 89,
     "cover": "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=900&q=80",
     "summary": "Dall'Atlantico alle dune di Erg Chebbi attraversando i passi dell'Alto Atlante. Un viaggio che mescola medine imperiali, kasbah di terra rossa e tramonti nel deserto che sembrano rubati a un film.",
     "stops": [
@@ -249,7 +247,6 @@
     "distance": 780,
     "difficulty": "Facile",
     "season": "Maggio – Settembre",
-    "price": 59,
     "cover": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
     "summary": "L'Albania è il segreto meglio tenuto d'Europa in moto. Coste cristalline, città ottomane, montagne che sembrano Dolomiti e prezzi da anni '90. Ho percorso la riviera con 300cc senza alcun problema.",
     "stops": [
@@ -351,15 +348,14 @@
   {
     "id": "dolomiti-tirolo",
     "title": "Dolomiti e Stelvio",
-    "country": "Italia / Austria",
-    "duration": "7 giorni",
-    "days": 7,
-    "distance": 740,
+    "country": "Italia",
+    "duration": "8 giorni",
+    "days": 8,
+    "distance": 900,
     "difficulty": "Media",
     "season": "Giugno – Settembre",
-    "price": 69,
     "cover": "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=900&q=80",
-    "summary": "Sette giorni di passi alpini tra i più belli d'Europa: Pordoi, Gardena, Stelvio e il Gran Paradiso. Tornanti, neve (anche in luglio sopra i 2500 m) e rifugi dove il capriolo è sempre in menù.",
+    "summary": "Otto giorni di passi alpini tra i più belli d'Europa: Pordoi, Gardena, Stelvio e il Gran Paradiso. Tornanti, neve (anche in luglio sopra i 2500 m) e rifugi dove il capriolo è sempre in menù.",
     "stops": [
       {
         "name": "Bolzano",
@@ -413,9 +409,20 @@
         ]
       },
       {
-        "name": "Aosta e Valle del Gran Paradiso",
-        "km": 220,
+        "name": "Lago di Como — Varenna",
+        "km": 150,
         "hours": "3h 30m",
+        "nights": 1,
+        "transport": [
+          "Moto"
+        ],
+        "notes": "Discesa dallo Stelvio verso Bormio e la Valtellina, poi la sponda orientale del Lario. Varenna spezza il trasferimento verso Aosta: passeggiata sul lungolago e cena vista lago.",
+        "photos": []
+      },
+      {
+        "name": "Aosta e Valle del Gran Paradiso",
+        "km": 230,
+        "hours": "3h 15m",
         "nights": 2,
         "transport": [
           "Moto"
@@ -450,7 +457,6 @@
     "distance": 1870,
     "difficulty": "Media",
     "season": "Maggio – Settembre",
-    "price": 119,
     "cover": "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=900&q=80",
     "summary": "Un arco attraverso quattro paesi: dalle Alpi Giulie ai canyon del Montenegro, dai laghi di Plitvice al caffè bosniaco di Sarajevo. L'itinerario che fa capire quanto è piccola l'Europa e quanto è varia.",
     "stops": [
@@ -581,7 +587,6 @@
     "distance": 600,
     "difficulty": "Facile",
     "season": "Maggio – Ottobre",
-    "price": 49,
     "cover": "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=900&q=80",
     "summary": "Un'isola che ha tutto: mare caraibico a nord, macchia mediterranea che profuma a venti metri, foreste di castagni e strade che ogni motociclista vorrebbe vedere almeno una volta. La D81 e la D84 non si dimenticano.",
     "stops": [
@@ -686,7 +691,6 @@
     "distance": 1590,
     "difficulty": "Avanzata",
     "season": "Aprile – Giugno, Settembre – Ottobre",
-    "price": 99,
     "cover": "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=900&q=80",
     "summary": "Dall'Egeo alla Via Licia seguendo la costa più bella del Mediterraneo orientale. Rovine greche, calette turchesi, hammam e il tè alla turca ogni mattina. L'itinerario più logisticamente impegnativo — ma anche il più indimenticabile.",
     "stops": [

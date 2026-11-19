@@ -132,7 +132,7 @@
           <p style="margin:0 0 12px; font-size:.92rem;">${escapeHtml(it.summary.slice(0, 110))}…</p>
           <div class="card-foot">
             <span class="muted" style="font-size:.85rem;">${it.stops.length} tappe</span>
-            <span class="card-price">€${it.price}<small>/pacchetto</small></span>
+            <span class="card-price"><small>da</small> €${PREZZO_MINIMO_PACCHETTO}<small>/pacchetto</small></span>
           </div>
         </div>
       </a>
@@ -141,7 +141,8 @@
     // stats
     const all = Itineraries.all();
     document.getElementById("statKm").textContent =
-      all.reduce((s, i) => s + (i.distance || 0), 0).toLocaleString("it-IT");
+      new Intl.NumberFormat("it-IT", { useGrouping: "always" }).format(
+      all.reduce((s, i) => s + (i.distance || 0), 0));
     document.getElementById("statCount").textContent = all.length;
   </script>
 </body>

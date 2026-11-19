@@ -27,18 +27,25 @@ def db():
 
 def test_conteggi():
     assert "7" in esegui_select("SELECT COUNT(*) FROM itinerari")
-    assert "46" in esegui_select("SELECT COUNT(*) FROM tappe")
+    assert "47" in esegui_select("SELECT COUNT(*) FROM tappe")
 
 
 def test_km_dolomiti():
-    assert "740" in esegui_select(
+    # 19/11: tappa Stelvio → Aosta divisa in due (Lago di Como): 740 → 900 km, 8 giorni
+    assert "900" in esegui_select(
         "SELECT km_totali FROM itinerari WHERE id = 'dolomiti-tirolo'"
     )
 
 
 def test_paese_multiplo():
+    out = esegui_select("SELECT id FROM itinerari WHERE paese LIKE '%Montenegro%'")
+    assert "balcani-occidentali" in out
+
+
+def test_nessun_paese_senza_tappe():
+    # 19/11: le Dolomiti dicevano "Italia / Austria" senza tappe in Austria
     out = esegui_select("SELECT id FROM itinerari WHERE paese LIKE '%Austria%'")
-    assert "dolomiti-tirolo" in out
+    assert "dolomiti-tirolo" not in out
 
 
 @pytest.mark.parametrize(
@@ -47,7 +54,7 @@ def test_paese_multiplo():
         "DELETE FROM itinerari",
         "DROP TABLE tappe",
         "SELECT 1; DROP TABLE tappe",
-        "UPDATE itinerari SET prezzo_eur = 0",
+        "UPDATE itinerari SET km_totali = 0",
     ],
 )
 def test_solo_select(sql):
