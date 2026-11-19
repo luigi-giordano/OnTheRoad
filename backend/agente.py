@@ -12,6 +12,8 @@ Un tool che scrive, sotto approvazione:
                        poi card nella board Trello via MCP (trello_mcp.py)
 
 Output strutturato: RispostaAgente (testo + id degli itinerari citati).
+Critico dei numeri (critico.py): ogni numero della risposta deve venire dalle fonti,
+altrimenti un critico LLM lo valuta e, se serve, l'agente rivede la risposta.
 
 Uso:  python agente.py            (chat con sessione persistente)
 """
@@ -26,6 +28,7 @@ from pydantic import ValidationError
 
 import documenti
 from config import CONFIG
+from critico import MARCATORE, fonti_dalla_sessione, valuta
 from modelli import Richiesta, RispostaAgente
 from strumenti import (
     PREZZI_PACCHETTI,
@@ -69,6 +72,12 @@ Richieste di pacchetti:
   se la rifiuta, segui il motivo che ti dà e non riprovare uguale.
 - Dopo il salvataggio conferma numero e prezzo restituiti dal tool, e che arriverà
   un'email con il link di pagamento.
+
+Revisioni:
+- Un messaggio che inizia con "[Revisione interna]" viene dal controllo dei numeri,
+  non dall'utente. Correggi la tua ultima risposta seguendo l'indicazione: verifica
+  i numeri con i tool o toglili. Rispondi come se fosse la prima risposta all'utente,
+  senza parlare della revisione.
 
 Formato della risposta:
 - testo: la risposta per l'utente.
@@ -252,11 +261,42 @@ async def gestisci_approvazioni(risultato, sessione):
     return risultato
 
 
+async def con_critico(domanda: str, risultato, sessione) -> RispostaAgente:
+    """Generatore e critico (M4·L12): controlla i numeri della risposta e, se il
+    critico la boccia, chiede all'agente di correggerla. Al massimo
+    CONFIG["critico_giri"] revisioni: il numero di giri lo decide il codice."""
+    risposta: RispostaAgente = risultato.final_output
+    if not CONFIG["critico"]:
+        return risposta
+    for giro in range(CONFIG["critico_giri"] + 1):
+        fonti = fonti_dalla_sessione(await sessione.get_items())
+        critica = await valuta(domanda, risposta.testo, fonti)
+        if critica is None or critica.approvata:
+            return risposta
+        if giro == CONFIG["critico_giri"]:
+            print(f"  [critico] ancora non approvata dopo {giro} revisioni: {critica.cosa_cambiare}")
+            # Meglio dirlo che mostrare come certo un numero non verificato.
+            risposta.testo += (
+                "\n\n⚠ Alcuni numeri di questa risposta non sono stati verificati: "
+                "controllali nella scheda dell'itinerario o chiedimeli di nuovo."
+            )
+            return risposta
+        print(f"  [revisione {giro + 1}] {critica.cosa_cambiare}")
+        risultato = await Runner.run(
+            agente, f"{MARCATORE} {critica.cosa_cambiare}",
+            session=sessione, max_turns=CONFIG["max_turns"],
+        )
+        risultato = await gestisci_approvazioni(risultato, sessione)
+        risposta = risultato.final_output
+    return risposta
+
+
 async def main() -> None:
     """Chat async (come l'assistente di M4·L4): la connessione MCP a Trello vive
     nello stesso event loop per tutta la chat, invece di riaprirsi a ogni domanda."""
     global TRELLO
     sessione = SQLiteSession("chat", str(CONFIG["sessioni_db"]))
+    print(f"  [critico] {'acceso' if CONFIG['critico'] else 'spento'}")
     async with AsyncExitStack() as pila:
         try:
             TRELLO = await pila.enter_async_context(server_trello())
@@ -275,7 +315,7 @@ async def main() -> None:
                 agente, domanda, session=sessione, max_turns=CONFIG["max_turns"]
             )
             risultato = await gestisci_approvazioni(risultato, sessione)
-            risposta: RispostaAgente = risultato.final_output
+            risposta = await con_critico(domanda, risultato, sessione)
             print(f"\nAssistente: {risposta.testo}")
 
             # Controllo nel codice: un id inventato dal modello non arriva al frontend.

@@ -18,10 +18,11 @@ backend/
   documenti.py     RAG sui documenti (chunking, embedding, Chroma)
   agente.py        agente con Agents SDK, 5 tool, sessione e approvazione
   trello_mcp.py    server MCP ufficiale di Trello: login OAuth e card delle richieste
+  critico.py       generatore e critico: controllo dei numeri della risposta
   aikit/           toolkit del corso (vedi Crediti)
   dati/            itinerari.json (fonte dei dati)
   corpus/          documenti per il RAG (FAQ, pacchetti, chi siamo)
-  tests/           42 test, non serve la chiave API
+  tests/           48 test, non serve la chiave API
 docs/
   domande.md       griglia di 16 domande e misure dell'assistente
 ```
@@ -36,7 +37,7 @@ copy .env.example .env      # poi inserisci la chiave in .env
 
 cd backend
 python crea_db.py           # crea dati/itinerari.db
-python -m pytest -q tests   # 42 test, non serve la chiave
+python -m pytest -q tests   # 48 test, non serve la chiave
 python agente.py            # chat con l'assistente
 ```
 
@@ -55,6 +56,15 @@ L'agente (OpenAI Agents SDK, sessione persistente con `SQLiteSession`) sceglie t
 
 La risposta è un output strutturato (`RispostaAgente`, Pydantic): testo più gli id degli itinerari citati. Gli oggetti `Itinerario` li costruisce il codice dal DB, non il modello, e gli id inesistenti vengono scartati. Così km e prezzi non possono essere inventati.
 
+## Critico dei numeri
+
+Km e prezzi sono quello che l'utente usa per decidere, quindi un numero inventato è l'errore peggiore. Ogni risposta passa da un controllo in due livelli (`critico.py`):
+
+1. **codice**: estrae i numeri della risposta e controlla che compaiano nei risultati dei tool o nei messaggi dell'utente (gratis, deterministico);
+2. **critico LLM**: solo se il codice trova numeri senza fonte, decide se sono calcoli corretti (es. 89 + 39 = 128) o inventati, e dice cosa cambiare.
+
+L'agente rivede la risposta al massimo 2 volte (lo decide il codice); se non basta, la risposta mostra un avviso. Si accende e spegne con `CONFIG["critico"]`, per misurare con e senza.
+
 ## Misure
 
 Ogni modifica viene rimisurata su una griglia di 16 domande (`docs/domande.md`), con sessione nuova: dati puntuali, filtri, follow-up con la sessione, codici esatti, confronti e una domanda fuori dominio che deve essere rifiutata.
@@ -69,7 +79,7 @@ Risultato attuale: **8/8** sulla griglia 1-8 e **8/8** sulla griglia 9-16.
 - [x] Output strutturato con Pydantic, id verificati nel codice
 - [x] Richiesta di pacchetto sotto approvazione (M4)
 - [x] MCP con Trello: card per ogni richiesta approvata, con idempotenza (M4)
-- [ ] Generatore e critico (M4)
+- [x] Generatore e critico sui numeri, misurato su una griglia trappola (M4)
 - [ ] API FastAPI collegata al frontend, deploy (M5)
 
 ## Crediti

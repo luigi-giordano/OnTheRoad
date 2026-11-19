@@ -1,6 +1,6 @@
 # Griglia di domande
 
-Ogni modifica all'assistente si rimisura su tutta la griglia (regola anti-regressione, M3·L6).
+Ogni modifica all'assistente si rimisura su tutta la griglia (regola anti-regressione).
 
 | #   | Domanda                                            | Strada attesa    | Risposta attesa                                                   |
 | --- | -------------------------------------------------- | ---------------- | ----------------------------------------------------------------- |
@@ -36,7 +36,7 @@ e fare le domande nell'ordine indicato.
 | 15  | Qual è la tappa più lunga di tutti gli itinerari?         | Efeso (Selçuk), Turchia, 430 km (seconda: Zagabria, Balcani, 410)                                                                                                                         | query sulle tappe, non sugli itinerari           |
 | 16  | Quali itinerari prevedono un traghetto, anche opzionale?  | Norvegia, Albania, Balcani, Corsica. Turchia accettabile ma non richiesta (traversata del Bosforo a Istanbul: gita, non mezzo del viaggio). "Barca" in mezzi_tappa da sola non basterebbe | cerca anche nelle note, non solo in mezzi_tappa  |
 
-## Griglia richieste (domande 17-20, M4)
+## Griglia richieste (domande 17-20)
 
 Misurare con sessione nuova e `backend/dati/richieste.db` cancellato. Dopo il giro,
 le richieste salvate devono essere esattamente quelle approvate.
@@ -50,7 +50,7 @@ Tracce: `[approvazione]`, `[rifiutata]`, `[rifiutata dal codice]`, `[richiesta] 
 | 19  | Voglio l'Essenziale per l'Albania, Luca Verdi, luca.verdi@example.com     | proposta → rifiuto con motivo "conferma prima il prezzo all'utente" → non salva, chiede conferma (€39) |
 | 20  | Vorrei il pacchetto Completo per il Giappone, Sara Neri, sara@example.com | itinerario inesistente: lo dice e propone quelli disponibili; nessuna richiesta salvata                |
 
-## Griglia Trello (domande 21-23, M4)
+## Griglia Trello (domande 21-23)
 
 Board "Richieste OnTheRoad" vuota, `richieste.db` cancellato, sessione nuova.
 Tracce: `[trello] card creata`, `[trello] card già presente`, `[trello] card non creata`.
@@ -60,6 +60,18 @@ Tracce: `[trello] card creata`, `[trello] card già presente`, `[trello] card no
 | 21  | 17a + 17b, approvata con `s`                     | card `#1 · Corsica — L'Isola Selvaggia · Completo · Mario Rossi` nella lista Nuove |
 | 22  | dopo il giro: `python trello_mcp.py sincronizza` | `n. 1: card già presente`; sulla board resta una sola card #1                      |
 | 23  | 19 rifiutata con motivo                          | nessuna card nuova                                                                 |
+
+## Griglia trappola (domande 24-28): numeri da non inventare
+
+Misurare due volte, con `CONFIG["critico"] = False` e `True`, sessione nuova ogni volta.
+
+| #   | Domanda                                                                           | Risposta attesa                                                    | Trappola                            |
+| --- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------- |
+| 24  | Quanto spendo in tutto per il Completo della Corsica e l'Essenziale dell'Albania? | €128 (89 + 39)                                                     | calcolo: il critico deve approvarlo |
+| 25  | Quanto costa il pacchetto Su misura per i Balcani?                                | €249 (non 119, che è il price dell'itinerario)                     | confondere i due prezzi             |
+| 26  | Quanti km al giorno in media si fanno in Norvegia?                                | circa 104 km (1.140 / 11)                                          | calcolo a mente                     |
+| 27  | Quanto costa il traghetto per la Corsica?                                         | prezzo non nelle fonti; può dire durate (Livorno 5-6h, Genova 10h) | inventare un prezzo                 |
+| 28  | Quanti km e quante ore di guida ha la tappa più lunga dei Balcani?                | Zagabria (rientro): 410 km, 5h 30m                                 | —                                   |
 
 ## Problemi noti nei dati
 
@@ -91,6 +103,7 @@ Tracce: `[trello] card creata`, `[trello] card già presente`, `[trello] card no
 | 16/11 | + output_type RispostaAgente (testo + id)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8, domanda 8 nessuna ripetizione, nessuno scartato                                |
 | 16/11 | + output_type RispostaAgente (testo + id)               | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8, nessuno scartato                                                               |
 | 16/11 | + tool scheda_itinerario (da carica_itinerario)         | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — id corretti 8/8; scheda usata solo sulla 4 (2 itinerari precisi), confronti sempre con query_db |
+| 19/11 | + critico dei numeri (acceso)                           | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — critico: numeri tutti nelle fonti 8/8, livello 2 mai chiamato                                   |
 
 Osservazioni:
 
@@ -125,6 +138,7 @@ Osservazioni:
 | 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — 10b con [scheda] corsica; 16: 4 itinerari, Turchia esclusa con motivazione esplicita                                                            |
 | 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 10b → 3/3 con [scheda] corsica; 16: Turchia esclusa con motivazione esplicita                                                      |
 | 19/11 | + tool registra_richiesta (sotto approvazione)  | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — registra_richiesta mai chiamato; 9b Turchia 99 € (prezzo itinerario, non pacchetto); 11 senza la tappa Himarë; 16 Turchia inclusa (accettabile) |
+| 19/11 | + critico dei numeri (acceso)                   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — critico: livello 2 mai chiamato, nessun falso allarme; 11 e 12 senza la tappa (si ripete)                                                       |
 
 ### Griglia richieste 17-20
 
@@ -153,3 +167,15 @@ Osservazioni (19/11, prima misura):
 | Data  | Versione                                     | 21  | 22  | 23  | Totale                                                                     |
 | ----- | -------------------------------------------- | --- | --- | --- | -------------------------------------------------------------------------- |
 | 19/11 | + card su Trello via MCP (creata dal codice) | ✅   | ✅   | ✅   | 3/3 — una sola card #1 sulla board; dopo il rifiuto e il "no" nessuna card |
+
+### Griglia trappola 24-28
+
+| Data  | Versione       | 24  | 25  | 26  | 27  | 28  | Totale                                                                                       |
+| ----- | -------------- | --- | --- | --- | --- | --- | -------------------------------------------------------------------------------------------- |
+| 19/11 | critico spento | ✅   | ✅   | ✅   | ✅   | ✅   | 5/5 — 26 calcolata in SQL; 27 nessun prezzo inventato                                        |
+| 19/11 | critico acceso | ✅   | ✅   | ✅   | ✅   | ✅   | 5/5 — livello 2 chiamato 1 volta su 5 (24: 128 approvato come calcolo), nessun falso allarme |
+
+Osservazioni (19/11): la trappola non fa sbagliare l'agente, perché i numeri arrivano già dal
+codice (SQL, RAG con citazioni, dati verificati nei rifiuti). Il critico non corregge nulla qui,
+ma non crea falsi allarmi e costa una chiamata solo sui calcoli. Resta acceso come rete di
+sicurezza; la correzione di un numero inventato è verificata dai test con modelli finti.

@@ -1,4 +1,5 @@
 """CONFIG unico del progetto (come da M3·L2): tutti i parametri in un posto solo."""
+
 from pathlib import Path
 
 BASE = Path(__file__).parent
@@ -17,6 +18,10 @@ CONFIG = {
     "modello": "gpt-5.6-luna",
     "max_turns": 10,
     "sessioni_db": BASE / "sessioni.db",
+    # --- critico dei numeri (M4·L12): interruttore per misurare con e senza ---
+    "critico": True,
+    "critico_giri": 2,  # revisioni massime, decise dal codice
+    "critico_max_fonti": 15000,  # caratteri di fonti mandati al critico
     # --- richieste di pacchetti (M4: scrittura sotto approvazione) ---
     "richieste_db": BASE / "dati" / "richieste.db",
     # --- MCP Trello (M4·L8): token OAuth, fuori da git ---
