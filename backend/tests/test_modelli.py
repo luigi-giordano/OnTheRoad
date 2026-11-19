@@ -10,7 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from config import CONFIG
-from modelli import Itinerario, RispostaAgente, Richiesta
+from modelli import Itinerario, Richiesta, RispostaAgente
 
 
 def _dati():
@@ -74,9 +74,7 @@ def test_richiesta_valida():
 
 
 def test_richiesta_pulisce_nome_ed_email():
-    r = Richiesta.model_validate(
-        _richiesta(name="  Mario Rossi ", email=" Mario@Example.COM ")
-    )
+    r = Richiesta.model_validate(_richiesta(name="  Mario Rossi ", email=" Mario@Example.COM "))
     assert r.name == "Mario Rossi"
     assert r.email == "mario@example.com"
 

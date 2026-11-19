@@ -17,6 +17,8 @@ CONFIG = {
     "modello": "gpt-5.6-luna",
     "max_turns": 10,
     "sessioni_db": BASE / "sessioni.db",
+    # --- richieste di pacchetti (M4: scrittura sotto approvazione) ---
+    "richieste_db": BASE / "dati" / "richieste.db",
     # --- sicurezza query_db (M3·L8) ---
     "limite_righe": 50,
 }

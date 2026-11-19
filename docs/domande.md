@@ -28,9 +28,7 @@ e fare le domande nell'ordine indicato.
 | 10b | Che documenti servono?                       | Carta d'identità o passaporto, patente A, documento assicurativo moto | capisce che si parla ancora della Corsica |
 
 ### Nuova griglia domande Codici esatti (11-13) e confronti (14-16)
-
-| #   | Domanda                                                   | Risposta attesa                                                                                                                                                                           | Cosa misura                                      |
-| --- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+                                    |
 | 11  | Quale itinerario passa per la SH8?                        | Albania Loop, tappa Riviera Albanese — Himarë (tratto Saranda–Vlorë)                                                                                                                      | LIKE sulle note delle tappe                      |
 | 12  | Su quale itinerario si percorre la D81?                   | Corsica: riassunto e tappa Porto e le Calanche (strada stretta, richiede attenzione)                                                                                                      | codice in due campi diversi                      |
 | 13  | Cosa dicono gli itinerari sull'autostrada A1?             | Balcani: rientro a Zagabria via A1 croata (nota di tappa) e radar fissi sulla A1 in Montenegro (consigli). Non deve parlare dell'A1 italiana                                              | stesso codice in due tabelle, nessuna invenzione |
@@ -40,16 +38,17 @@ e fare le domande nell'ordine indicato.
 
 ## Griglia richieste (domande 17-20, M4)
 
-Misurare con sessione nuova e `richieste.db` cancellato. Dopo il giro,
+Misurare con sessione nuova e `backend/dati/richieste.db` cancellato. Dopo il giro,
 le richieste salvate devono essere esattamente quelle approvate.
+Tracce: `[approvazione]`, `[rifiutata]`, `[rifiutata dal codice]`, `[richiesta] n. X salvata`.
 
-| #   | Domanda                                                                   | Comportamento atteso                                                                                    |
-| --- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| 17a | Vorrei il pacchetto Completo per la Corsica                               | chiede nome ed email; nessuna proposta di registrazione                                                 |
-| 17b | Mario Rossi, mario.rossi@example.com, prima metà di giugno                | propone la richiesta (corsica, Completo) → approvazione → salvata; conferma con il prezzo del pacchetto |
-| 18  | Prenota il Su misura per i Balcani: Anna Bianchi, anna@example            | email non valida: chiede di correggerla; nessuna richiesta salvata                                      |
-| 19  | Voglio l'Essenziale per l'Albania, Luca Verdi, luca.verdi@example.com     | proposta → rifiuto con motivo "conferma prima il prezzo all'utente" → non salva, chiede conferma        |
-| 20  | Vorrei il pacchetto Completo per il Giappone, Sara Neri, sara@example.com | itinerario inesistente: lo dice e propone quelli disponibili; nessuna richiesta salvata                 |
+| #   | Domanda                                                                   | Comportamento atteso                                                                                   |
+| --- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 17a | Vorrei il pacchetto Completo per la Corsica                               | chiede nome ed email; nessuna proposta di registrazione                                                |
+| 17b | Mario Rossi, mario.rossi@example.com, prima metà di giugno                | propone la richiesta (corsica, Completo) → approvazione → salvata; conferma numero e €89               |
+| 18  | Prenota il Su misura per i Balcani: Anna Bianchi, anna@example            | email non valida: rifiutata dal codice, chiede di correggerla; nessuna richiesta salvata               |
+| 19  | Voglio l'Essenziale per l'Albania, Luca Verdi, luca.verdi@example.com     | proposta → rifiuto con motivo "conferma prima il prezzo all'utente" → non salva, chiede conferma (€39) |
+| 20  | Vorrei il pacchetto Completo per il Giappone, Sara Neri, sara@example.com | itinerario inesistente: lo dice e propone quelli disponibili; nessuna richiesta salvata                |
 
 ## Problemi noti nei dati
 
@@ -59,6 +58,11 @@ le richieste salvate devono essere esattamente quelle approvate.
   si allinea in M5, quando leggerà dall'API.
 - Dolomiti e Stelvio: la tappa Stelvio → Aosta dichiara 220 km, su strada
   sono probabilmente oltre 350. Il riassunto cita l'Austria ma nessuna tappa è lì.
+- Prezzi: ogni itinerario ha un suo `price` (Corsica 49 €, Norvegia 109 €…), mentre
+  i pacchetti know-how hanno prezzi fissi (Essenziale 39 €, Completo 89 €, Su misura 249 €).
+  Decisione del 19/11: una richiesta costa il prezzo del pacchetto, come mostra il
+  modulo della pagina Offerte (PREZZI_PACCHETTI in strumenti.py). Il significato di
+  `price` dell'itinerario è da chiarire.
 
 ## Misure
 
@@ -100,12 +104,36 @@ Osservazioni:
 
 ### Griglia estesa 9-16
 
-| Data  | Versione                                        | 9   | 10  | 11  | 12  | 13  | 14  | 15  | 16  | Totale                                                                                                                       |
-| ----- | ----------------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 12/11 | baseline                                        | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ✅   | 7/8 + 1 parziale (13: manca la A1 in consigli)                                                                               |
-| 12/11 | + docstring query_db: campi di testo con LIKE   | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ❌   | 6/8 + 1 parziale — JOIN cartesiano (96 righe, taglio a 50)                                                                   |
-| 12/11 | + tool cerca_testo (UNION ALL nel codice)       | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 13 → 3/3, 16 → 2/3                                                                                        |
-| 16/11 | + output_type RispostaAgente (testo + id)       | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | 6/8 + 1 parziale — 10b: query su colonna inesistente, nessun nuovo tentativo; 16: non usa cerca_testo, manca Turchia         |
-| 16/11 | + output_type RispostaAgente (testo + id)       | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 7/8 — ripetizioni: 10b → 2/3 (non legge la tabella documenti), 16 → 3/3 col criterio aggiornato; id validi, nessuno scartato |
-| 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — 10b con [scheda] corsica; 16: 4 itinerari, Turchia esclusa con motivazione esplicita                                   |
-| 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 10b → 3/3 con [scheda] corsica; 16: Turchia esclusa con motivazione esplicita                             |
+| Data  | Versione                                        | 9   | 10  | 11  | 12  | 13  | 14  | 15  | 16  | Totale                                                                                                                                                |
+| ----- | ----------------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 12/11 | baseline                                        | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ✅   | 7/8 + 1 parziale (13: manca la A1 in consigli)                                                                                                        |
+| 12/11 | + docstring query_db: campi di testo con LIKE   | ✅   | ✅   | ✅   | ✅   | 🟡   | ✅   | ✅   | ❌   | 6/8 + 1 parziale — JOIN cartesiano (96 righe, taglio a 50)                                                                                            |
+| 12/11 | + tool cerca_testo (UNION ALL nel codice)       | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 13 → 3/3, 16 → 2/3                                                                                                                 |
+| 16/11 | + output_type RispostaAgente (testo + id)       | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | 🟡   | 6/8 + 1 parziale — 10b: query su colonna inesistente, nessun nuovo tentativo; 16: non usa cerca_testo, manca Turchia                                  |
+| 16/11 | + output_type RispostaAgente (testo + id)       | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 7/8 — ripetizioni: 10b → 2/3 (non legge la tabella documenti), 16 → 3/3 col criterio aggiornato; id validi, nessuno scartato                          |
+| 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — 10b con [scheda] corsica; 16: 4 itinerari, Turchia esclusa con motivazione esplicita                                                            |
+| 16/11 | + tool scheda_itinerario (da carica_itinerario) | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — ripetizioni: 10b → 3/3 con [scheda] corsica; 16: Turchia esclusa con motivazione esplicita                                                      |
+| 19/11 | + tool registra_richiesta (sotto approvazione)  | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | 8/8 — registra_richiesta mai chiamato; 9b Turchia 99 € (prezzo itinerario, non pacchetto); 11 senza la tappa Himarë; 16 Turchia inclusa (accettabile) |
+
+### Griglia richieste 17-20
+
+| Data  | Versione                                           | 17a | 17b | 18  | 19  | 20  | DB  | Totale                                                           |
+| ----- | -------------------------------------------------- | --- | --- | --- | --- | --- | --- | ---------------------------------------------------------------- |
+| 19/11 | + registra_richiesta sotto approvazione            | ✅   | 🟡   | 🟡   | ❌   | 🟡   | ✅   | 1/5 + 3 parziali — DB: solo la richiesta approvata               |
+| 19/11 | + motivo con dati verificati; conferma "approvata" | ✅   | ✅   | —   | ✅   | —   | ✅   | 17a, 17b, 19 rimisurate — 19 → 3/3 con €39 (prima €49 inventato) |
+
+Osservazioni (19/11, prima misura):
+
+- 17b: salva correttamente, ma dice "un operatore dovrà approvarla" quando è già
+  approvata. Il testo del tool diceva solo "salvata". Corretto nel codice: il tool
+  ora restituisce "approvata dall'operatore e salvata".
+- 18: il modello riconosce da solo l'email incompleta e la chiede, senza chiamare
+  il tool (il rifiuto nel codice resta come rete di sicurezza). Chiede anche quale
+  itinerario nei Balcani, ma ce n'è uno solo: non ha consultato il DB. Da rivedere se si ripete.
+- 19: dopo il rifiuto con motivo dice "Essenziale €49", il prezzo giusto è €39
+  (prezzo inventato: il motivo non conteneva il prezzo). Corretto nel codice:
+  al motivo dell'operatore si aggiungono itinerario e prezzo verificati.
+- 20: rifiuta correttamente senza chiamare il tool, ma non propone gli itinerari
+  disponibili. Accettabile, non si corregge con le ISTRUZIONI (rischio overfitting).
+- 19/11, rimisura: dopo "Sì, confermo" la richiesta viene riproposta, approvata e salvata come n. 2.
+

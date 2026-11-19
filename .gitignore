@@ -12,6 +12,7 @@ __pycache__/
 # file generati (si ricreano con crea_db.py / indicizzazione)
 backend/dati/itinerari.db
 backend/sessioni.db
+backend/dati/richieste.db
 chroma/
 backend/chroma/
 

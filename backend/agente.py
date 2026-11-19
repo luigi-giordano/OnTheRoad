@@ -1,26 +1,36 @@
-"""Assistente di viaggio OnTheRoad — Agents SDK (M3·L10-L11).
+"""Assistente di viaggio OnTheRoad — Agents SDK (M3·L10-L11, M4·L5).
 
-Quattro tool su due fonti:
+Quattro tool in lettura su due fonti:
 - query_db           → dati strutturati sugli itinerari (km, giorni, tappe, documenti…)
 - scheda_itinerario  → tutti i dati di UN itinerario, senza SQL (costruita nel codice)
 - cerca_testo        → nomi e codici in tutti i testi degli itinerari (UNION ALL nel codice)
 - cerca_documenti    → testi del sito e guide (FAQ, pacchetti, normative)
+
+Un tool che scrive, sotto approvazione:
+- registra_richiesta → richiesta di un pacchetto know-how, salvata in richieste.db
+                       solo dopo il sì dell'operatore (gestisci_approvazioni)
 
 Output strutturato: RispostaAgente (testo + id degli itinerari citati).
 
 Uso:  python agente.py            (chat con sessione persistente)
 """
 
+import json
+
 from agents import Agent, Runner, SQLiteSession, function_tool
 from dotenv import load_dotenv
+from pydantic import ValidationError
 
 import documenti
 from config import CONFIG
-from modelli import RispostaAgente
+from modelli import Richiesta, RispostaAgente
 from strumenti import (
+    PREZZI_PACCHETTI,
     carica_itinerario,
     cerca_nei_testi,
     esegui_select,
+    riepilogo_richiesta,
+    salva_richiesta,
     scheda_come_testo,
 )
 
@@ -46,6 +56,15 @@ Regole:
 - Quando la domanda riguarda un itinerario preciso (descrizione, tappe, documenti,
   vaccinazioni, consigli), anche se è stato nominato in un messaggio precedente,
   usa scheda_itinerario con il suo id.
+
+Richieste di pacchetti:
+- Se l'utente vuole acquistare un pacchetto (Essenziale, Completo, Su misura) per un
+  itinerario, servono nome, email, itinerario e pacchetto. Chiedi quelli che mancano,
+  senza inventarli. Le date o le esigenze vanno nel messaggio (vuoto se non le dice).
+- Quando hai tutti i dati, usa registra_richiesta. Un operatore deve approvarla:
+  se la rifiuta, segui il motivo che ti dà e non riprovare uguale.
+- Dopo il salvataggio conferma numero e prezzo restituiti dal tool, e che arriverà
+  un'email con il link di pagamento.
 
 Formato della risposta:
 - testo: la risposta per l'utente.
@@ -122,13 +141,90 @@ def cerca_documenti(domanda: str) -> str:
         return "Errore: la ricerca nei documenti non è ancora disponibile."
 
 
+@function_tool(needs_approval=True)
+def registra_richiesta(richiesta: Richiesta) -> str:
+    """Registra la richiesta di un pacchetto know-how per un itinerario.
+    Va usata solo quando l'utente ha dato nome, email, itinerario e pacchetto.
+    Un operatore deve approvarla prima del salvataggio.
+
+    Args:
+        richiesta: i dati della richiesta, come nel modulo della pagina Offerte.
+    """
+    if carica_itinerario(richiesta.itinerary_id) is None:
+        return (
+            f"Errore: l'itinerario '{richiesta.itinerary_id}' non esiste. "
+            "Usa query_db per vedere gli id disponibili."
+        )
+    numero = salva_richiesta(richiesta)
+    prezzo = PREZZI_PACCHETTI[richiesta.package]
+    print(f"  [richiesta] n. {numero} salvata")
+    return (
+        f"Richiesta n. {numero} approvata dall'operatore e salvata: "
+        f"pacchetto {richiesta.package}, €{prezzo}. "
+        "Arriverà un'email con il link di pagamento."
+    )
+
+
 agente = Agent(
     name="Assistente OnTheRoad",
     instructions=ISTRUZIONI,
     model=CONFIG["modello"],
-    tools=[query_db, scheda_itinerario, cerca_testo, cerca_documenti],
+    tools=[query_db, scheda_itinerario, cerca_testo, cerca_documenti, registra_richiesta],
     output_type=RispostaAgente,
 )
+
+
+def gestisci_approvazioni(risultato, sessione):
+    """Ciclo di approvazione (M4·L5): finché l'agente si ferma su un tool
+    da approvare, mostra il riepilogo costruito dal codice e chiede sì o no.
+
+    Prima dell'operatore controlla il codice: dati non validi o itinerario
+    inesistente vengono rifiutati con un motivo che indica al modello la strada.
+    Un no dell'operatore senza motivo ferma il modello; con un motivo lo guida.
+    """
+    while risultato.interruptions:
+        stato = risultato.to_state()
+        for item in risultato.interruptions:
+            try:
+                richiesta = Richiesta.model_validate(json.loads(item.arguments)["richiesta"])
+            except ValidationError as e:
+                # Dati non validi: li rifiuta il codice, senza disturbare l'operatore.
+                errori = "; ".join(err["msg"] for err in e.errors())
+                print(f"  [rifiutata dal codice] {errori}")
+                stato.reject(
+                    item,
+                    rejection_message=f"Dati non validi ({errori}). "
+                    "Chiedi all'utente di correggerli, poi riprova.",
+                )
+                continue
+            if carica_itinerario(richiesta.itinerary_id) is None:
+                print(f"  [rifiutata dal codice] itinerario '{richiesta.itinerary_id}' inesistente")
+                stato.reject(
+                    item,
+                    rejection_message=f"L'itinerario '{richiesta.itinerary_id}' non esiste. "
+                    "Dillo all'utente e proponi quelli disponibili (query_db).",
+                )
+                continue
+            print("\n  [approvazione] nuova richiesta di pacchetto")
+            print(riepilogo_richiesta(richiesta))
+            if input("  Approvi? (s/n): ").strip().lower() == "s":
+                stato.approve(item)
+            else:
+                motivo = input("  Motivo (invio per nessuno): ").strip()
+                if motivo:
+                    # Al motivo il codice aggiunge i dati verificati: il modello
+                    # non deve ricordare o inventare il prezzo (misura del 19/11, domanda 19).
+                    it = carica_itinerario(richiesta.itinerary_id)
+                    motivo += (
+                        f". Dati verificati della richiesta: itinerario {it.title}, "
+                        f"pacchetto {richiesta.package} a €{PREZZI_PACCHETTI[richiesta.package]}."
+                    )
+                stato.reject(item, rejection_message=motivo or None)
+                print("  [rifiutata]")
+        risultato = Runner.run_sync(
+            agente, stato, session=sessione, max_turns=CONFIG["max_turns"]
+        )
+    return risultato
 
 
 def main() -> None:
@@ -143,6 +239,7 @@ def main() -> None:
         risultato = Runner.run_sync(
             agente, domanda, session=sessione, max_turns=CONFIG["max_turns"]
         )
+        risultato = gestisci_approvazioni(risultato, sessione)
         risposta: RispostaAgente = risultato.final_output
         print(f"\nAssistente: {risposta.testo}")
 

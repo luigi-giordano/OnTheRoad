@@ -10,7 +10,7 @@ Gli errori tornano come testo, così il modello può correggersi e riprovare.
 import sqlite3
 
 from config import CONFIG
-from modelli import Itinerario
+from modelli import Itinerario, Richiesta
 
 
 def esegui_select(sql: str) -> str:
@@ -205,3 +205,56 @@ def scheda_come_testo(id_: str) -> str:
         righe.append(f"{titolo}:")
         righe.extend(f"  - {v}" for v in voci)
     return "\n".join(righe)
+
+
+# --- Richieste di pacchetti (M4) ---------------------------------------------
+# Prezzi dei pacchetti know-how, come nel modulo della pagina Offerte.
+# Decisione del 19/11: la richiesta costa il prezzo del pacchetto;
+# il price dell'itinerario è un valore da chiarire (Problemi noti).
+PREZZI_PACCHETTI = {"Essenziale": 39, "Completo": 89, "Su misura": 249}
+
+SQL_CREA_RICHIESTE = """
+CREATE TABLE IF NOT EXISTS richieste (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    creata       TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    name         TEXT NOT NULL,
+    email        TEXT NOT NULL,
+    itinerary_id TEXT NOT NULL,
+    package      TEXT NOT NULL,
+    prezzo_eur   INTEGER NOT NULL,
+    message      TEXT NOT NULL
+)
+"""
+
+
+def salva_richiesta(r: Richiesta) -> int:
+    """Salva una richiesta in richieste.db e restituisce il suo numero.
+
+    Unica funzione del progetto che scrive: DB separato da itinerari.db,
+    che resta in sola lettura. Il prezzo lo decide il codice, non il modello.
+    """
+    con = sqlite3.connect(CONFIG["richieste_db"])
+    try:
+        con.execute(SQL_CREA_RICHIESTE)
+        cur = con.execute(
+            "INSERT INTO richieste (name, email, itinerary_id, package, prezzo_eur, message)"
+            " VALUES (?, ?, ?, ?, ?, ?)",
+            (r.name, r.email, r.itinerary_id, r.package,
+             PREZZI_PACCHETTI[r.package], r.message),
+        )
+        con.commit()
+        return cur.lastrowid
+    finally:
+        con.close()
+
+
+def riepilogo_richiesta(r: Richiesta) -> str:
+    """Il testo che vede chi approva: costruito dal codice e dal DB, non dal modello."""
+    it = carica_itinerario(r.itinerary_id)
+    titolo = it.title if it else f"⚠ itinerario inesistente: '{r.itinerary_id}'"
+    return (
+        f"  Itinerario: {titolo}\n"
+        f"  Pacchetto:  {r.package} — €{PREZZI_PACCHETTI[r.package]}\n"
+        f"  Cliente:    {r.name} <{r.email}>\n"
+        f"  Messaggio:  {r.message or '—'}"
+    )
