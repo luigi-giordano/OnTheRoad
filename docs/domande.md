@@ -38,6 +38,19 @@ e fare le domande nell'ordine indicato.
 | 15  | Qual è la tappa più lunga di tutti gli itinerari?         | Efeso (Selçuk), Turchia, 430 km (seconda: Zagabria, Balcani, 410)                                                                                                                         | query sulle tappe, non sugli itinerari           |
 | 16  | Quali itinerari prevedono un traghetto, anche opzionale?  | Norvegia, Albania, Balcani, Corsica. Turchia accettabile ma non richiesta (traversata del Bosforo a Istanbul: gita, non mezzo del viaggio). "Barca" in mezzi_tappa da sola non basterebbe | cerca anche nelle note, non solo in mezzi_tappa  |
 
+## Griglia richieste (domande 17-20, M4)
+
+Misurare con sessione nuova e `richieste.db` cancellato. Dopo il giro,
+le richieste salvate devono essere esattamente quelle approvate.
+
+| #   | Domanda                                                                   | Comportamento atteso                                                                                    |
+| --- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 17a | Vorrei il pacchetto Completo per la Corsica                               | chiede nome ed email; nessuna proposta di registrazione                                                 |
+| 17b | Mario Rossi, mario.rossi@example.com, prima metà di giugno                | propone la richiesta (corsica, Completo) → approvazione → salvata; conferma con il prezzo del pacchetto |
+| 18  | Prenota il Su misura per i Balcani: Anna Bianchi, anna@example            | email non valida: chiede di correggerla; nessuna richiesta salvata                                      |
+| 19  | Voglio l'Essenziale per l'Albania, Luca Verdi, luca.verdi@example.com     | proposta → rifiuto con motivo "conferma prima il prezzo all'utente" → non salva, chiede conferma        |
+| 20  | Vorrei il pacchetto Completo per il Giappone, Sara Neri, sara@example.com | itinerario inesistente: lo dice e propone quelli disponibili; nessuna richiesta salvata                 |
+
 ## Problemi noti nei dati
 
 - Km e giorni: corretti. Regola: le tappe sono la fonte di verità

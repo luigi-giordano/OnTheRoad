@@ -10,7 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from config import CONFIG
-from modelli import Itinerario, RispostaAgente
+from modelli import Itinerario, RispostaAgente, Richiesta
 
 
 def _dati():
@@ -51,3 +51,53 @@ def test_risposta_agente_senza_itinerari():
 def test_risposta_agente_richiede_tutti_i_campi():
     with pytest.raises(ValidationError):
         RispostaAgente.model_validate({"testo": "ciao"})
+
+
+# --- Richiesta (M4: richiesta di un pacchetto, sotto approvazione) ---
+
+
+def _richiesta(**cambi):
+    dati = {
+        "name": "Mario Rossi",
+        "email": "mario.rossi@example.com",
+        "itinerary_id": "corsica",
+        "package": "Completo",
+        "message": "Prima metà di giugno",
+    }
+    dati.update(cambi)
+    return dati
+
+
+def test_richiesta_valida():
+    r = Richiesta.model_validate(_richiesta())
+    assert r.package == "Completo"
+
+
+def test_richiesta_pulisce_nome_ed_email():
+    r = Richiesta.model_validate(
+        _richiesta(name="  Mario Rossi ", email=" Mario@Example.COM ")
+    )
+    assert r.name == "Mario Rossi"
+    assert r.email == "mario@example.com"
+
+
+def test_richiesta_email_non_valida():
+    with pytest.raises(ValidationError, match="email"):
+        Richiesta.model_validate(_richiesta(email="mario.example.com"))
+
+
+def test_richiesta_nome_mancante():
+    with pytest.raises(ValidationError, match="nome"):
+        Richiesta.model_validate(_richiesta(name=" "))
+
+
+def test_richiesta_pacchetto_sconosciuto():
+    with pytest.raises(ValidationError):
+        Richiesta.model_validate(_richiesta(package="Premium"))
+
+
+def test_richiesta_richiede_tutti_i_campi():
+    dati = _richiesta()
+    del dati["message"]
+    with pytest.raises(ValidationError):
+        Richiesta.model_validate(dati)
