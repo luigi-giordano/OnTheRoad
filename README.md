@@ -66,8 +66,8 @@ Risultato attuale: **8/8** sulla griglia 1-8 e **8/8** sulla griglia 9-16.
 - [x] RAG sui documenti e prima misura sulla griglia di domande
 - [x] Tool dedicati `cerca_testo` e `scheda_itinerario`, griglia estesa a 16 domande
 - [x] Output strutturato con Pydantic, id verificati nel codice
-- [ ] Calcoli sotto approvazione, skill, MCP (M4)
-- [ ] API FastAPI collegata al frontend, deploy (M5)
+- [ ] Calcoli sotto approvazione, skill, MCP
+- [ ] API FastAPI collegata al frontend, deploy
 
 ## Crediti
 
