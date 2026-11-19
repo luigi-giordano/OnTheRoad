@@ -8,14 +8,17 @@ Quattro tool in lettura su due fonti:
 
 Un tool che scrive, sotto approvazione:
 - registra_richiesta → richiesta di un pacchetto know-how, salvata in richieste.db
-                       solo dopo il sì dell'operatore (gestisci_approvazioni)
+                       solo dopo il sì dell'operatore (gestisci_approvazioni),
+                       poi card nella board Trello via MCP (trello_mcp.py)
 
 Output strutturato: RispostaAgente (testo + id degli itinerari citati).
 
 Uso:  python agente.py            (chat con sessione persistente)
 """
 
+import asyncio
 import json
+from contextlib import AsyncExitStack
 
 from agents import Agent, Runner, SQLiteSession, function_tool
 from dotenv import load_dotenv
@@ -33,6 +36,7 @@ from strumenti import (
     salva_richiesta,
     scheda_come_testo,
 )
+from trello_mcp import crea_card_richiesta, server_trello
 
 load_dotenv()
 
@@ -141,8 +145,13 @@ def cerca_documenti(domanda: str) -> str:
         return "Errore: la ricerca nei documenti non è ancora disponibile."
 
 
+# Connessione a Trello, aperta in main(). None se Trello non è raggiungibile:
+# la richiesta si salva comunque, senza card.
+TRELLO = None
+
+
 @function_tool(needs_approval=True)
-def registra_richiesta(richiesta: Richiesta) -> str:
+async def registra_richiesta(richiesta: Richiesta) -> str:
     """Registra la richiesta di un pacchetto know-how per un itinerario.
     Va usata solo quando l'utente ha dato nome, email, itinerario e pacchetto.
     Un operatore deve approvarla prima del salvataggio.
@@ -158,6 +167,22 @@ def registra_richiesta(richiesta: Richiesta) -> str:
     numero = salva_richiesta(richiesta)
     prezzo = PREZZI_PACCHETTI[richiesta.package]
     print(f"  [richiesta] n. {numero} salvata")
+
+    # Card su Trello: la crea il codice (M4·L8-L9), una volta sola per numero.
+    # Un errore di Trello non annulla la richiesta: è già salvata in richieste.db.
+    if TRELLO is None:
+        esito_card = "card non creata: Trello non collegato"
+    else:
+        try:
+            esito_card = await crea_card_richiesta(
+                TRELLO, numero, carica_itinerario(richiesta.itinerary_id).title,
+                richiesta.package, prezzo, richiesta.name, richiesta.email,
+                richiesta.message,
+            )
+        except Exception as e:
+            esito_card = f"card non creata: {e}"
+    print(f"  [trello] {esito_card}")
+
     return (
         f"Richiesta n. {numero} approvata dall'operatore e salvata: "
         f"pacchetto {richiesta.package}, €{prezzo}. "
@@ -174,7 +199,7 @@ agente = Agent(
 )
 
 
-def gestisci_approvazioni(risultato, sessione):
+async def gestisci_approvazioni(risultato, sessione):
     """Ciclo di approvazione (M4·L5): finché l'agente si ferma su un tool
     da approvare, mostra il riepilogo costruito dal codice e chiede sì o no.
 
@@ -221,35 +246,45 @@ def gestisci_approvazioni(risultato, sessione):
                     )
                 stato.reject(item, rejection_message=motivo or None)
                 print("  [rifiutata]")
-        risultato = Runner.run_sync(
+        risultato = await Runner.run(
             agente, stato, session=sessione, max_turns=CONFIG["max_turns"]
         )
     return risultato
 
 
-def main() -> None:
+async def main() -> None:
+    """Chat async (come l'assistente di M4·L4): la connessione MCP a Trello vive
+    nello stesso event loop per tutta la chat, invece di riaprirsi a ogni domanda."""
+    global TRELLO
     sessione = SQLiteSession("chat", str(CONFIG["sessioni_db"]))
-    print("Assistente OnTheRoad — scrivi 'esci' per uscire.")
-    while True:
-        domanda = input("\nTu: ").strip()
-        if domanda.lower() in {"esci", "exit", "quit"}:
-            break
-        if not domanda:
-            continue
-        risultato = Runner.run_sync(
-            agente, domanda, session=sessione, max_turns=CONFIG["max_turns"]
-        )
-        risultato = gestisci_approvazioni(risultato, sessione)
-        risposta: RispostaAgente = risultato.final_output
-        print(f"\nAssistente: {risposta.testo}")
+    async with AsyncExitStack() as pila:
+        try:
+            TRELLO = await pila.enter_async_context(server_trello())
+            print("  [trello] collegato")
+        except Exception as e:
+            print(f"  [trello] non collegato ({e}): le richieste si salvano senza card")
 
-        # Controllo nel codice: un id inventato dal modello non arriva al frontend.
-        validi = [i for i in risposta.itinerari if carica_itinerario(i) is not None]
-        scartati = [i for i in risposta.itinerari if i not in validi]
-        print(f"  [itinerari] {validi}")
-        if scartati:
-            print(f"  [scartati] {scartati}")
+        print("Assistente OnTheRoad — scrivi 'esci' per uscire.")
+        while True:
+            domanda = input("\nTu: ").strip()
+            if domanda.lower() in {"esci", "exit", "quit"}:
+                break
+            if not domanda:
+                continue
+            risultato = await Runner.run(
+                agente, domanda, session=sessione, max_turns=CONFIG["max_turns"]
+            )
+            risultato = await gestisci_approvazioni(risultato, sessione)
+            risposta: RispostaAgente = risultato.final_output
+            print(f"\nAssistente: {risposta.testo}")
+
+            # Controllo nel codice: un id inventato dal modello non arriva al frontend.
+            validi = [i for i in risposta.itinerari if carica_itinerario(i) is not None]
+            scartati = [i for i in risposta.itinerari if i not in validi]
+            print(f"  [itinerari] {validi}")
+            if scartati:
+                print(f"  [scartati] {scartati}")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

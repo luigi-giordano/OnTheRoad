@@ -17,10 +17,11 @@ backend/
   strumenti.py     query in sola lettura, ricerca nei testi, caricamento itinerari
   documenti.py     RAG sui documenti (chunking, embedding, Chroma)
   agente.py        agente con Agents SDK, 5 tool, sessione e approvazione
+  trello_mcp.py    server MCP ufficiale di Trello: login OAuth e card delle richieste
   aikit/           toolkit del corso (vedi Crediti)
   dati/            itinerari.json (fonte dei dati)
   corpus/          documenti per il RAG (FAQ, pacchetti, chi siamo)
-  tests/           37 test, non serve la chiave API
+  tests/           42 test, non serve la chiave API
 docs/
   domande.md       griglia di 16 domande e misure dell'assistente
 ```
@@ -35,7 +36,7 @@ copy .env.example .env      # poi inserisci la chiave in .env
 
 cd backend
 python crea_db.py           # crea dati/itinerari.db
-python -m pytest -q tests   # 37 test, non serve la chiave
+python -m pytest -q tests   # 42 test, non serve la chiave
 python agente.py            # chat con l'assistente
 ```
 
@@ -67,7 +68,8 @@ Risultato attuale: **8/8** sulla griglia 1-8 e **8/8** sulla griglia 9-16.
 - [x] Tool dedicati `cerca_testo` e `scheda_itinerario`, griglia estesa a 16 domande
 - [x] Output strutturato con Pydantic, id verificati nel codice
 - [x] Richiesta di pacchetto sotto approvazione (M4)
-- [ ] Skill, MCP con Trello, generatore e critico (M4)
+- [x] MCP con Trello: card per ogni richiesta approvata, con idempotenza (M4)
+- [ ] Generatore e critico (M4)
 - [ ] API FastAPI collegata al frontend, deploy (M5)
 
 ## Crediti

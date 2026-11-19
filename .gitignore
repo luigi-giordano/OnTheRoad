@@ -1,5 +1,6 @@
 # segreti — MAI nella repo
 .env
+.mcp-token/
 .env.*
 !.env.example
 

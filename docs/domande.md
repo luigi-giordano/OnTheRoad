@@ -50,6 +50,17 @@ Tracce: `[approvazione]`, `[rifiutata]`, `[rifiutata dal codice]`, `[richiesta] 
 | 19  | Voglio l'Essenziale per l'Albania, Luca Verdi, luca.verdi@example.com     | proposta → rifiuto con motivo "conferma prima il prezzo all'utente" → non salva, chiede conferma (€39) |
 | 20  | Vorrei il pacchetto Completo per il Giappone, Sara Neri, sara@example.com | itinerario inesistente: lo dice e propone quelli disponibili; nessuna richiesta salvata                |
 
+## Griglia Trello (domande 21-23, M4)
+
+Board "Richieste OnTheRoad" vuota, `richieste.db` cancellato, sessione nuova.
+Tracce: `[trello] card creata`, `[trello] card già presente`, `[trello] card non creata`.
+
+| #   | Prova                                            | Comportamento atteso                                                               |
+| --- | ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| 21  | 17a + 17b, approvata con `s`                     | card `#1 · Corsica — L'Isola Selvaggia · Completo · Mario Rossi` nella lista Nuove |
+| 22  | dopo il giro: `python trello_mcp.py sincronizza` | `n. 1: card già presente`; sulla board resta una sola card #1                      |
+| 23  | 19 rifiutata con motivo                          | nessuna card nuova                                                                 |
+
 ## Problemi noti nei dati
 
 - Km e giorni: corretti. Regola: le tappe sono la fonte di verità
@@ -137,3 +148,8 @@ Osservazioni (19/11, prima misura):
   disponibili. Accettabile, non si corregge con le ISTRUZIONI (rischio overfitting).
 - 19/11, rimisura: dopo "Sì, confermo" la richiesta viene riproposta, approvata e salvata come n. 2.
 
+### Griglia Trello 21-23
+
+| Data  | Versione                                     | 21  | 22  | 23  | Totale                                                                     |
+| ----- | -------------------------------------------- | --- | --- | --- | -------------------------------------------------------------------------- |
+| 19/11 | + card su Trello via MCP (creata dal codice) | ✅   | ✅   | ✅   | 3/3 — una sola card #1 sulla board; dopo il rifiuto e il "no" nessuna card |

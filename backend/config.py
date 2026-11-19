@@ -19,6 +19,10 @@ CONFIG = {
     "sessioni_db": BASE / "sessioni.db",
     # --- richieste di pacchetti (M4: scrittura sotto approvazione) ---
     "richieste_db": BASE / "dati" / "richieste.db",
+    # --- MCP Trello (M4·L8): token OAuth, fuori da git ---
+    "mcp_token_dir": BASE.parent / ".mcp-token",
+    "trello_board": "Richieste OnTheRoad",
+    "trello_lista_nuove": "Nuove",
     # --- sicurezza query_db (M3·L8) ---
     "limite_righe": 50,
 }
